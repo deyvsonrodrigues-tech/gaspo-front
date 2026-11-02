@@ -17,7 +17,7 @@ Com base na distribuição das interfaces do aplicativo móvel e do painel de ad
 | Charley | Splash Screen / Seleção de Perfil | AuthService |
 | Letícia | Login e Cadastro (Cidadão e Funcionário); Informações da Unidade de Saúde; Feed de Avisos Gerais (Paciente); Gestão de Avisos (Painel Admin) | UsuarioRepository; UnidadeSaudeService; AvisoService |
 | Marcus | Tela de Início / Dashboard; Shell Bar e Navegação Global | Integração Base/Roteamento; AvaliacaoService |
-| João Kevin | — | AgendaService; ConsultaService; ProfissionalService |
+| João Kevin |   | AgendaService; ConsultaService; ProfissionalService |
 | Pedro | Busca e Filtro de Médicos; Avaliação e Feedback do Atendimento; Agendamento de Consultas; Cadastro de Horários (Admin) | AgendaService; ConsultaService; ProfissionalService |
 | Deyvson Queiroz | Histórico de Consultas; Consultas Marcadas / Status; Central de Notificações / Alertas | NotificacaoService; ConsultaService; CidadaoService |
 
