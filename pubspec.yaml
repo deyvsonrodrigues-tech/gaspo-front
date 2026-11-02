@@ -1,5 +1,5 @@
 name: gaspo_front
-description: "A new Flutter project."
+description: "GASPO - aplicativo de gestão e agendamento para unidades de saúde."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -35,6 +35,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # Máscaras de data e horário (tela de Avaliação da Consulta).
+  mask_text_input_formatter: ^2.9.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -56,6 +59,10 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # Logos e mapa da unidade de saúde.
+  assets:
+    - assets/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

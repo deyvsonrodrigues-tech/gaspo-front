@@ -1,6 +1,6 @@
 {
-    "name": "gaspo_front",
-    "short_name": "gaspo_front",
+    "name": "GASPO",
+    "short_name": "GASPO",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
