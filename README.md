@@ -6,7 +6,7 @@
 # Plano e Cronograma de Execução: Front-end Flutter
 
 - **Período de execução:** 23/09/2026 a 18/12/2026
-- **Tecnologias envolvidas:** Flutter (Dart), Spring Boot 3.4 (Java 21), Docker / Docker Compose e PostgreSQL.
+- **Tecnologias envolvidas:** Flutter (Dart), Spring Boot 3.4 (Java 21) e PostgreSQL.
 
 ## 1. Mapeamento de Responsabilidades do Front-end (Figma)
 
