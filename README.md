@@ -106,11 +106,14 @@ e `GASPO`, e o projeto `gaspo` enviado em arquivo) foram unificadas aqui.
 lib/
 ├── main.dart                  # GaspoApp: tema + rotas
 ├── app/
+│   ├── localizacao.dart       # Idioma pt-BR (calendário, relógio, textos padrão)
 │   ├── rotas.dart             # Rotas nomeadas (Rotas.home, Rotas.perfil, ...)
 │   └── tema.dart              # GaspoCores (paleta única) + ThemeData
-├── modelos/                   # Usuario, Profissional (+ StatusProfissional)
+├── modelos/                   # Usuario, Profissional, HorarioAgenda, PerfilAcesso
 ├── dados/dados_exemplo.dart   # Dados fixos até a integração com a API
-├── utils/mensagens.dart       # SnackBars padrão
+├── servicos/                  # Acesso aos dados (hoje em memória; depois, a Gaspo-api)
+│   └── agenda_service.dart    # /api/agendas: gerar grade, listar, atualizar, remover
+├── utils/                     # SnackBars padrão e formatação de data/hora
 ├── widgets/
 │   ├── gaspo_header.dart      # Seta de voltar + logo
 │   ├── gaspo_bottom_nav.dart  # Menu inferior único
@@ -122,13 +125,15 @@ lib/
     ├── avaliacao/             # Avaliação da consulta e profissional (repo GASPO)
     ├── unidade/               # Localização da unidade               (projeto gaspo)
     ├── notificacoes/          # Notificações                         (repo Telas-Projeto-Integrador)
-    └── perfil/                # Perfil                               (repo Telas-Projeto-Integrador)
+    ├── perfil/                # Perfil                               (repo Telas-Projeto-Integrador)
+    └── admin/                 # Cadastro de Horários (painel do funcionário)
 ```
 
 ### Navegação
 
 ```
-Splash → Entrada ─┬─ Usuário / Funcionário → Login → Início
+Splash → Entrada ─┬─ Usuário → Login → Início
+                  ├─ Funcionário → Login → Cadastro de Horários
                   └─ Cadastrar-se → Cadastro ⇄ Login
 
 Início ─┬─ Especialistas → Detalhes do profissional

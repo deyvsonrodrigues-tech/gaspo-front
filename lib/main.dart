@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app/localizacao.dart';
 import 'app/rotas.dart';
 import 'app/tema.dart';
 
@@ -16,6 +17,9 @@ class GaspoApp extends StatelessWidget {
       title: 'GASPO',
       debugShowCheckedModeBanner: false,
       theme: criarTemaGaspo(),
+      locale: localeGaspo,
+      supportedLocales: const [localeGaspo],
+      localizationsDelegates: delegatesGaspo,
       initialRoute: Rotas.splash,
       onGenerateRoute: Rotas.gerarRota,
     );
