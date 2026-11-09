@@ -145,6 +145,39 @@ void main() {
       expect(alturas, hasLength(1));
     });
 
+    testWidgets('Perfil: sair da conta volta para o Login', (tester) async {
+      await _abrirNoInicio(tester);
+      await tester.tap(find.text('Perfil'));
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.text('Sair da conta'),
+        200,
+        scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)),
+      );
+      await tester.tap(find.text('Sair da conta'));
+      await tester.pumpAndSettle();
+      expect(find.text('Sair da conta?'), findsOneWidget);
+
+      // Cancelar mantém o usuário no Perfil.
+      await tester.tap(find.text('Cancelar'));
+      await tester.pumpAndSettle();
+      expect(find.text('Sair da conta?'), findsNothing);
+      expect(find.text('Sair da conta'), findsOneWidget);
+
+      await tester.tap(find.text('Sair da conta'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Sair'));
+      await tester.pumpAndSettle();
+      expect(find.text('Conecte-se para acessar o aplicativo:'), findsOneWidget);
+
+      // A seta do Login leva à Entrada; não há como voltar ao Perfil.
+      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_left));
+      await tester.pumpAndSettle();
+      expect(find.text('Entrar como:'), findsOneWidget);
+      expect(find.text('Sobre Mim'), findsNothing);
+    });
+
     testWidgets('Menu inferior: Perfil e volta ao Início', (tester) async {
       await _abrirNoInicio(tester);
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/rotas.dart';
 import '../../app/tema.dart';
 import '../../dados/dados_exemplo.dart';
 import '../../widgets/gaspo_bottom_nav.dart';
@@ -51,6 +52,62 @@ class PerfilTela extends StatelessWidget {
                 ),
                 child: const Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 16),
               ),
+      ),
+    );
+  }
+
+  Future<void> _sair(BuildContext context) async {
+    final confirmado = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sair da conta?'),
+        content: const Text('Você precisará entrar novamente para acessar o aplicativo.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Sair'),
+          ),
+        ],
+      ),
+    );
+    if (confirmado != true || !context.mounted) return;
+
+    // TODO: apagar o token salvo quando o login usar a API.
+    // Entrada fica por baixo para a seta de voltar do Login funcionar.
+    final navigator = Navigator.of(context);
+    navigator.pushNamedAndRemoveUntil(Rotas.entrada, (_) => false);
+    navigator.pushNamed(Rotas.login);
+  }
+
+  Widget _criarItemSair(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.black12, width: 1)),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
+        onTap: () => _sair(context),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(Icons.logout, color: Colors.white, size: 20),
+        ),
+        title: const Text(
+          'Sair da conta',
+          style: TextStyle(fontSize: 13, color: Colors.red, fontWeight: FontWeight.w500),
+        ),
+        subtitle: const Text(
+          'Voltar para a tela de login',
+          style: TextStyle(fontSize: 11, color: Colors.black54),
+        ),
       ),
     );
   }
@@ -165,6 +222,7 @@ class PerfilTela extends StatelessWidget {
                     isSwitch: true,
                     switchValue: true,
                   ),
+                  _criarItemSair(context),
 
                   const SizedBox(height: 15),
 
