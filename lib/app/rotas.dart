@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../modelos/perfil_acesso.dart';
 import '../modelos/profissional.dart';
 import '../telas/admin/cadastro_horarios_tela.dart';
+import '../telas/agendamento/agendamento_tela.dart';
 import '../telas/autenticacao/cadastro_tela.dart';
 import '../telas/autenticacao/entrada_tela.dart';
 import '../telas/autenticacao/login_tela.dart';
@@ -42,6 +43,9 @@ class Rotas {
   static const String notificacoes = '/notificacoes';
   static const String perfil = '/perfil';
 
+  /// Argumento opcional: [Profissional] já escolhido.
+  static const String agendamento = '/agendamento';
+
   // Painel Admin (funcionário)
   static const String cadastroHorarios = '/cadastro-horarios';
 
@@ -65,6 +69,9 @@ class Rotas {
       localizacao => const LocalizacaoTela(),
       notificacoes => const NotificacoesTela(),
       perfil => const PerfilTela(),
+      agendamento => AgendamentoTela(
+          profissionalInicial: settings.arguments as Profissional?,
+        ),
       cadastroHorarios => const CadastroHorariosTela(),
       _ => const SplashTela(),
     };

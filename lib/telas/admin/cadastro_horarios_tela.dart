@@ -8,6 +8,7 @@ import '../../modelos/profissional.dart';
 import '../../servicos/agenda_service.dart';
 import '../../utils/formatadores.dart';
 import '../../utils/mensagens.dart';
+import '../../widgets/campos_formulario.dart';
 import '../../widgets/gaspo_header.dart';
 
 /// Cadastro de Horários (Painel Admin): gera a grade de atendimento de um
@@ -53,17 +54,6 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
 
   void _sair() {
     Navigator.pushNamedAndRemoveUntil(context, Rotas.entrada, (_) => false);
-  }
-
-  Future<void> _escolherData() async {
-    final hoje = DateUtils.dateOnly(DateTime.now());
-    final escolhida = await showDatePicker(
-      context: context,
-      initialDate: _data,
-      firstDate: hoje,
-      lastDate: hoje.add(const Duration(days: 365)),
-    );
-    if (escolhida != null) setState(() => _data = escolhida);
   }
 
   Future<void> _adicionarHorario() async {
@@ -180,24 +170,6 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
     }
   }
 
-  InputDecoration _decoracao(String label, IconData icone) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: const TextStyle(color: GaspoCores.azulTitulo, fontWeight: FontWeight.w500),
-      prefixIcon: Icon(icone, color: GaspoCores.azulTitulo),
-      filled: true,
-      fillColor: Colors.white,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.black12),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.black12),
-      ),
-    );
-  }
-
   Widget _subtitulo(String texto) {
     return Text(
       texto,
@@ -216,7 +188,7 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
           isExpanded: true,
           initialValue: _profissional,
           icon: const Icon(Icons.arrow_drop_down, color: GaspoCores.azulTitulo),
-          decoration: _decoracao('Profissional', Icons.person_outline),
+          decoration: decoracaoCampo('Profissional', Icons.person_outline),
           items: profissionais.map((profissional) {
             return DropdownMenuItem<Profissional>(
               value: profissional,
@@ -231,14 +203,7 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
         ),
         const SizedBox(height: 16),
 
-        InkWell(
-          onTap: _escolherData,
-          borderRadius: BorderRadius.circular(12),
-          child: InputDecorator(
-            decoration: _decoracao('Data', Icons.calendar_today_outlined),
-            child: Text(formatarData(_data), style: const TextStyle(fontSize: 14)),
-          ),
-        ),
+        CampoData(data: _data, onChanged: (data) => setState(() => _data = data)),
         const SizedBox(height: 16),
 
         const Text(
@@ -270,25 +235,7 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
         ),
         const SizedBox(height: 20),
 
-        SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: GaspoCores.azul,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            ),
-            onPressed: _salvando ? null : _gerarGrade,
-            child: _salvando
-                ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
-                  )
-                : const Text('Gerar grade', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          ),
-        ),
+        BotaoPrincipal(texto: 'Gerar grade', carregando: _salvando, onPressed: _gerarGrade),
       ],
     );
   }

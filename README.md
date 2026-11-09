@@ -109,14 +109,16 @@ lib/
 │   ├── localizacao.dart       # Idioma pt-BR (calendário, relógio, textos padrão)
 │   ├── rotas.dart             # Rotas nomeadas (Rotas.home, Rotas.perfil, ...)
 │   └── tema.dart              # GaspoCores (paleta única) + ThemeData
-├── modelos/                   # Usuario, Profissional, HorarioAgenda, PerfilAcesso
+├── modelos/                   # Usuario, Profissional, HorarioAgenda, Consulta, PerfilAcesso
 ├── dados/dados_exemplo.dart   # Dados fixos até a integração com a API
 ├── servicos/                  # Acesso aos dados (hoje em memória; depois, a Gaspo-api)
-│   └── agenda_service.dart    # /api/agendas: gerar grade, listar, atualizar, remover
+│   ├── agenda_service.dart    # /api/agendas: gerar grade, listar, atualizar, remover
+│   └── consulta_service.dart  # /api/consultas: horários livres, agendar, ativas, histórico, cancelar
 ├── utils/                     # SnackBars padrão e formatação de data/hora
 ├── widgets/
 │   ├── gaspo_header.dart      # Seta de voltar + logo
 │   ├── gaspo_bottom_nav.dart  # Menu inferior único
+│   ├── campos_formulario.dart # Decoração de campos, campo de data, botão principal
 │   └── avaliacao_widgets.dart # Estrelas, caixa de comentário, botão secundário
 └── telas/
     ├── autenticacao/          # Splash, Entrada, Login, Cadastro     (projeto gaspo)
@@ -126,6 +128,7 @@ lib/
     ├── unidade/               # Localização da unidade               (projeto gaspo)
     ├── notificacoes/          # Notificações                         (repo Telas-Projeto-Integrador)
     ├── perfil/                # Perfil                               (repo Telas-Projeto-Integrador)
+    ├── agendamento/           # Agendamento de consultas (paciente)
     └── admin/                 # Cadastro de Horários (painel do funcionário)
 ```
 
@@ -136,13 +139,13 @@ Splash → Entrada ─┬─ Usuário → Login → Início
                   ├─ Funcionário → Login → Cadastro de Horários
                   └─ Cadastrar-se → Cadastro ⇄ Login
 
-Início ─┬─ Especialistas → Detalhes do profissional
+Início ─┬─ Especialistas → Detalhes do profissional → Agendar consulta
         ├─ Avaliação → Avaliação do profissional → Início
         ├─ Localização
         ├─ Notificações (ícone do cabeçalho)
         └─ Comunicados (em desenvolvimento)
 
-Menu inferior: Início · Agendar (em desenvolvimento) · Histórico (em desenvolvimento) · Perfil
+Menu inferior: Início · Agendar · Histórico (em desenvolvimento) · Perfil
 ```
 
 ### Convenções

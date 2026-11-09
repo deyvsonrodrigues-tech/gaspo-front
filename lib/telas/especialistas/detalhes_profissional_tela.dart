@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/rotas.dart';
 import '../../app/tema.dart';
 import '../../modelos/profissional.dart';
 import '../../widgets/gaspo_bottom_nav.dart';
@@ -99,6 +100,32 @@ class DetalhesProfissionalTela extends StatelessWidget {
             ),
 
             const SizedBox(height: 40),
+
+            SizedBox(
+              width: 200,
+              height: 44,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: GaspoCores.azul,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () => Navigator.pushNamed(
+                  context,
+                  Rotas.agendamento,
+                  arguments: profissional,
+                ),
+                icon: const Icon(Icons.calendar_month_outlined, size: 20),
+                label: const Text(
+                  'Agendar consulta',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 12),
 
             // Botão de Voltar Opcional no corpo
             SizedBox(

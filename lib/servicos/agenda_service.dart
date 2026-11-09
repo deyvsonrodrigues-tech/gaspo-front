@@ -8,7 +8,7 @@ import '../modelos/agenda.dart';
 /// Os métodos seguem os endpoints de /api/agendas da Gaspo-api, para que a
 /// implementação HTTP substitua a [AgendaServiceLocal] sem mudar as telas.
 abstract class AgendaService {
-  static AgendaService instancia = AgendaServiceLocal();
+  static AgendaService instancia = AgendaServiceLocal.comExemplos();
 
   /// GET /api/agendas (ordenado por data e horário).
   Future<List<HorarioAgenda>> listar();
@@ -33,6 +33,32 @@ class AgendaServiceLocal implements AgendaService {
   final List<HorarioAgenda> _horarios = [];
   int _proximoId = 1;
 
+  AgendaServiceLocal();
+
+  /// Agenda de exemplo para testar o app sem a API: todos os profissionais
+  /// com horários livres nos próximos 3 dias úteis.
+  factory AgendaServiceLocal.comExemplos({DateTime? hoje}) {
+    const horarios = [
+      TimeOfDay(hour: 8, minute: 0),
+      TimeOfDay(hour: 9, minute: 0),
+      TimeOfDay(hour: 10, minute: 0),
+      TimeOfDay(hour: 14, minute: 0),
+      TimeOfDay(hour: 15, minute: 0),
+    ];
+    final service = AgendaServiceLocal();
+    var dia = DateUtils.dateOnly(hoje ?? DateTime.now());
+    var diasUteis = 0;
+    while (diasUteis < 3) {
+      dia = DateUtils.addDaysToDate(dia, 1);
+      if (dia.weekday == DateTime.saturday || dia.weekday == DateTime.sunday) continue;
+      diasUteis++;
+      for (final profissional in profissionais) {
+        service._adicionarGrade(profissional.id, dia, horarios);
+      }
+    }
+    return service;
+  }
+
   @override
   Future<List<HorarioAgenda>> listar() async {
     final lista = List.of(_horarios)
@@ -49,6 +75,10 @@ class AgendaServiceLocal implements AgendaService {
     required DateTime data,
     required List<TimeOfDay> horarios,
   }) async {
+    _adicionarGrade(profissionalId, data, horarios);
+  }
+
+  void _adicionarGrade(int profissionalId, DateTime data, List<TimeOfDay> horarios) {
     final profissional = profissionais.firstWhere(
       (p) => p.id == profissionalId,
       orElse: () => throw ArgumentError('Profissional não encontrado'),

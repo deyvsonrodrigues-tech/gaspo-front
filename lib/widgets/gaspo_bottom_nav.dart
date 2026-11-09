@@ -27,7 +27,13 @@ class GaspoBottomNav extends StatelessWidget {
           );
         }
       case agendar:
-        mostrarEmDesenvolvimento(context, 'Agendar');
+        if (currentIndex != agendar) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            Rotas.agendamento,
+            ModalRoute.withName(Rotas.home),
+          );
+        }
       case historico:
         mostrarEmDesenvolvimento(context, 'Histórico');
     }
