@@ -129,6 +129,22 @@ void main() {
       expect(find.text('Lembrete de consulta'), findsOneWidget);
     });
 
+    testWidgets('Início em tela larga mostra os 4 cartões em uma linha', (tester) async {
+      tester.view.physicalSize = const Size(1280, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(MaterialApp(
+        theme: criarTemaGaspo(),
+        home: const HomeTela(),
+        onGenerateRoute: Rotas.gerarRota,
+      ));
+
+      final alturas = ['Especialistas', 'Comunicados', 'Avaliação', 'Localização']
+          .map((titulo) => tester.getCenter(find.text(titulo)).dy)
+          .toSet();
+      expect(alturas, hasLength(1));
+    });
+
     testWidgets('Menu inferior: Perfil e volta ao Início', (tester) async {
       await _abrirNoInicio(tester);
 
