@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-<<<<<<<<< Temporary merge branch 1
-import 'dashboard.dart';
-=========
+
+import 'app/localizacao.dart';
 import 'app/rotas.dart';
 import 'app/tema.dart';
 
