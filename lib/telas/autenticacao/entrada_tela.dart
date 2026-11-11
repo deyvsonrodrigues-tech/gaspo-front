@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
+import '../../modelos/perfil_acesso.dart';
 import '../../utils/mensagens.dart';
 
 class EntradaTela extends StatelessWidget {
@@ -10,14 +11,14 @@ class EntradaTela extends StatelessWidget {
   Widget botaoPerfil(
     BuildContext context,
     String titulo,
+    PerfilAcesso perfil,
   ) {
     return Expanded(
       child: SizedBox(
         height: 50,
         child: ElevatedButton(
           onPressed: () {
-            // Usuário e Funcionário usam o mesmo login por enquanto.
-            Navigator.pushNamed(context, Rotas.login);
+            Navigator.pushNamed(context, Rotas.login, arguments: perfil);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: GaspoCores.azul,
@@ -75,11 +76,11 @@ class EntradaTela extends StatelessWidget {
               // BOTÕES USUÁRIO E FUNCIONÁRIO
               Row(
                 children: [
-                  botaoPerfil(context, 'Usuário'),
+                  botaoPerfil(context, 'Usuário', PerfilAcesso.usuario),
 
                   const SizedBox(width: 16),
 
-                  botaoPerfil(context, 'Funcionário'),
+                  botaoPerfil(context, 'Funcionário', PerfilAcesso.funcionario),
                 ],
               ),
 

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../modelos/perfil_acesso.dart';
 import '../modelos/profissional.dart';
+import '../telas/admin/cadastro_horarios_tela.dart';
+import '../telas/agendamento/agendamento_tela.dart';
 import '../telas/autenticacao/cadastro_tela.dart';
 import '../telas/autenticacao/entrada_tela.dart';
 import '../telas/autenticacao/login_tela.dart';
@@ -17,11 +20,14 @@ import '../telas/unidade/localizacao_tela.dart';
 /// Rotas nomeadas de todo o aplicativo.
 ///
 /// Fluxo: Splash → Entrada → Login/Cadastro → Início → módulos.
+/// Funcionário: Entrada → Login → Cadastro de Horários.
 class Rotas {
   Rotas._();
 
   static const String splash = '/';
   static const String entrada = '/entrada';
+
+  /// Argumento opcional: [PerfilAcesso] (padrão: usuário).
   static const String login = '/login';
   static const String cadastro = '/cadastro';
   static const String home = '/home';
@@ -37,11 +43,19 @@ class Rotas {
   static const String notificacoes = '/notificacoes';
   static const String perfil = '/perfil';
 
+  /// Argumento opcional: [Profissional] já escolhido.
+  static const String agendamento = '/agendamento';
+
+  // Painel Admin (funcionário)
+  static const String cadastroHorarios = '/cadastro-horarios';
+
   static Route<dynamic> gerarRota(RouteSettings settings) {
     final Widget tela = switch (settings.name) {
       splash => const SplashTela(),
       entrada => const EntradaTela(),
-      login => const LoginTela(),
+      login => LoginTela(
+          perfil: settings.arguments as PerfilAcesso? ?? PerfilAcesso.usuario,
+        ),
       cadastro => const CadastroTela(),
       home => const HomeTela(),
       especialistas => const EspecialistasTela(),
@@ -55,6 +69,10 @@ class Rotas {
       localizacao => const LocalizacaoTela(),
       notificacoes => const NotificacoesTela(),
       perfil => const PerfilTela(),
+      agendamento => AgendamentoTela(
+          profissionalInicial: settings.arguments as Profissional?,
+        ),
+      cadastroHorarios => const CadastroHorariosTela(),
       _ => const SplashTela(),
     };
 

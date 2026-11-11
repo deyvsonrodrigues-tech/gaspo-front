@@ -3,10 +3,13 @@ import 'package:flutter/services.dart';
 
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
+import '../../modelos/perfil_acesso.dart';
 import '../../widgets/gaspo_header.dart';
 
 class LoginTela extends StatefulWidget {
-  const LoginTela({super.key});
+  final PerfilAcesso perfil;
+
+  const LoginTela({super.key, this.perfil = PerfilAcesso.usuario});
 
   @override
   State<LoginTela> createState() => _LoginTelaState();
@@ -27,7 +30,11 @@ class _LoginTelaState extends State<LoginTela> {
 
   void entrar() {
     // TODO: autenticar CPF e senha quando a API estiver disponível.
-    Navigator.pushNamedAndRemoveUntil(context, Rotas.home, (_) => false);
+    // Funcionário vai para o painel admin (por enquanto, só o Cadastro de Horários).
+    final destino = widget.perfil == PerfilAcesso.funcionario
+        ? Rotas.cadastroHorarios
+        : Rotas.home;
+    Navigator.pushNamedAndRemoveUntil(context, destino, (_) => false);
   }
 
   InputDecoration _decoracaoCampo({Widget? suffixIcon}) {

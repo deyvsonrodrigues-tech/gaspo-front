@@ -13,6 +13,7 @@ const Usuario usuarioLogado = Usuario(
 
 const List<Profissional> profissionais = [
   Profissional(
+    id: 1,
     nome: 'Dra. Olivia Silva',
     especialidade: 'Cardiologista',
     nota: 4.9,
@@ -20,6 +21,7 @@ const List<Profissional> profissionais = [
     status: StatusProfissional.presente,
   ),
   Profissional(
+    id: 2,
     nome: 'Dr. Jonathan Figueredo',
     especialidade: 'Dentista',
     nota: 4.9,
@@ -27,6 +29,7 @@ const List<Profissional> profissionais = [
     status: StatusProfissional.ocupado,
   ),
   Profissional(
+    id: 3,
     nome: 'Dr. Bruno Almeida',
     especialidade: 'Ortopedista',
     nota: 4.9,
@@ -34,6 +37,7 @@ const List<Profissional> profissionais = [
     status: StatusProfissional.ausente,
   ),
   Profissional(
+    id: 4,
     nome: 'Dra. Larissa Catarina',
     especialidade: 'Ginecologista e Pediatra',
     nota: 4.9,
@@ -41,6 +45,7 @@ const List<Profissional> profissionais = [
     status: StatusProfissional.presente,
   ),
   Profissional(
+    id: 5,
     nome: 'Dra. Flávia Dávallo',
     especialidade: 'Ortopedista',
     nota: 4.9,
@@ -48,6 +53,7 @@ const List<Profissional> profissionais = [
     status: StatusProfissional.ocupado,
   ),
   Profissional(
+    id: 6,
     nome: 'Dr. Matheus Castro',
     especialidade: 'Clínico Geral',
     nota: 4.9,

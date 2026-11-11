@@ -12,6 +12,7 @@ enum StatusProfissional {
 }
 
 class Profissional {
+  final int id;
   final String nome;
   final String especialidade;
   final double nota;
@@ -19,6 +20,7 @@ class Profissional {
   final StatusProfissional status;
 
   const Profissional({
+    required this.id,
     required this.nome,
     required this.especialidade,
     required this.nota,

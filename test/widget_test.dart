@@ -129,6 +129,55 @@ void main() {
       expect(find.text('Lembrete de consulta'), findsOneWidget);
     });
 
+    testWidgets('Início em tela larga mostra os 4 cartões em uma linha', (tester) async {
+      tester.view.physicalSize = const Size(1280, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(MaterialApp(
+        theme: criarTemaGaspo(),
+        home: const HomeTela(),
+        onGenerateRoute: Rotas.gerarRota,
+      ));
+
+      final alturas = ['Especialistas', 'Comunicados', 'Avaliação', 'Localização']
+          .map((titulo) => tester.getCenter(find.text(titulo)).dy)
+          .toSet();
+      expect(alturas, hasLength(1));
+    });
+
+    testWidgets('Perfil: sair da conta volta para o Login', (tester) async {
+      await _abrirNoInicio(tester);
+      await tester.tap(find.text('Perfil'));
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.text('Sair da conta'),
+        200,
+        scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)),
+      );
+      await tester.tap(find.text('Sair da conta'));
+      await tester.pumpAndSettle();
+      expect(find.text('Sair da conta?'), findsOneWidget);
+
+      // Cancelar mantém o usuário no Perfil.
+      await tester.tap(find.text('Cancelar'));
+      await tester.pumpAndSettle();
+      expect(find.text('Sair da conta?'), findsNothing);
+      expect(find.text('Sair da conta'), findsOneWidget);
+
+      await tester.tap(find.text('Sair da conta'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Sair'));
+      await tester.pumpAndSettle();
+      expect(find.text('Conecte-se para acessar o aplicativo:'), findsOneWidget);
+
+      // A seta do Login leva à Entrada; não há como voltar ao Perfil.
+      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_left));
+      await tester.pumpAndSettle();
+      expect(find.text('Entrar como:'), findsOneWidget);
+      expect(find.text('Sobre Mim'), findsNothing);
+    });
+
     testWidgets('Menu inferior: Perfil e volta ao Início', (tester) async {
       await _abrirNoInicio(tester);
 
