@@ -34,17 +34,6 @@ Future<void> _abrir(WidgetTester tester, Widget home) async {
   await tester.pumpAndSettle();
 }
 
-/// Escolhe a data digitando no modo de texto do calendário.
-Future<void> _escolherData(WidgetTester tester, DateTime data) async {
-  await tester.tap(find.text(formatarData(DateTime.now())));
-  await tester.pumpAndSettle();
-  await tester.tap(find.byIcon(Icons.edit_outlined));
-  await tester.pumpAndSettle();
-  await tester.enterText(find.byType(TextField).last, formatarData(data));
-  await tester.tap(find.text('OK'));
-  await tester.pumpAndSettle();
-}
-
 void main() {
   group('ConsultaServiceLocal (regras da API)', () {
     final agora = DateTime(2026, 11, 10, 12, 0);
@@ -136,29 +125,37 @@ void main() {
   });
 
   group('Tela de agendamento', () {
-    testWidgets('agenda uma consulta e volta ao Início', (tester) async {
-      final amanha = DateUtils.addDaysToDate(DateUtils.dateOnly(DateTime.now()), 1);
-      final agenda = AgendaServiceLocal();
+    late DateTime amanha;
+    late AgendaServiceLocal agenda;
+    late ConsultaServiceLocal consultas;
+
+    setUp(() async {
+      amanha = DateUtils.addDaysToDate(DateUtils.dateOnly(DateTime.now()), 1);
+      agenda = AgendaServiceLocal();
       await agenda.gerarGrade(
         profissionalId: _matheus.id,
         data: amanha,
-        horarios: const [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 10, minute: 0)],
+        horarios: const [TimeOfDay(hour: 9, minute: 0), TimeOfDay(hour: 14, minute: 0)],
       );
-      final consultas = ConsultaServiceLocal(agenda);
+      consultas = ConsultaServiceLocal(agenda);
+    });
 
+    testWidgets('abre no primeiro dia com vaga, agrupa por período e agenda', (tester) async {
       await _abrir(tester, AgendamentoTela(service: consultas, profissionalInicial: _matheus));
-      expect(find.text('Nenhum horário disponível nesta data. Tente outro dia.'), findsOneWidget);
 
-      await _escolherData(tester, amanha);
+      expect(find.textContaining('próxima vaga'), findsOneWidget);
+      expect(find.text('Manhã'), findsOneWidget);
+      expect(find.text('Tarde'), findsOneWidget);
       expect(find.text('09:00'), findsOneWidget);
-      expect(find.text('10:00'), findsOneWidget);
+      expect(find.text('14:00'), findsOneWidget);
+      expect(find.text('Confirmar'), findsNothing);
 
+      await tester.ensureVisible(find.text('09:00'));
       await tester.tap(find.text('09:00'));
       await tester.pumpAndSettle();
-      expect(find.text('Resumo'), findsOneWidget);
+      expect(find.textContaining('às 09:00'), findsOneWidget);
 
-      await tester.ensureVisible(find.text('Confirmar agendamento'));
-      await tester.tap(find.text('Confirmar agendamento'));
+      await tester.tap(find.text('Confirmar'));
       await tester.pumpAndSettle();
       expect(find.text('Consulta agendada!'), findsOneWidget);
 
@@ -171,33 +168,59 @@ void main() {
       expect(find.byType(HomeTela), findsOneWidget);
     });
 
-    testWidgets('trocar a especialidade limpa o profissional incompatível', (tester) async {
+    testWidgets('horário escolhido no perfil já chega selecionado', (tester) async {
+      final tarde = (await agenda.listar()).last;
       await _abrir(
         tester,
-        AgendamentoTela(
-          service: ConsultaServiceLocal(AgendaServiceLocal()),
-          profissionalInicial: _matheus,
-        ),
+        AgendamentoTela(service: consultas, profissionalInicial: _matheus, horarioInicial: tarde),
       );
-
-      await tester.tap(find.text('Todas'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dentista').last);
-      await tester.pumpAndSettle();
-
-      expect(find.text('Escolha um profissional para ver os horários livres.'), findsOneWidget);
-      await tester.tap(find.text('Profissional'));
-      await tester.pumpAndSettle();
-      expect(find.text('Dr. Jonathan Figueredo'), findsWidgets);
-      expect(find.text('Dr. Matheus Castro'), findsNothing);
+      expect(find.textContaining('às 14:00'), findsOneWidget);
+      expect(find.text('Confirmar'), findsOneWidget);
     });
 
-    testWidgets('abre pelo menu inferior e pelos Detalhes do profissional', (tester) async {
+    testWidgets('trocar a especialidade tira o profissional que não combina', (tester) async {
+      await _abrir(tester, AgendamentoTela(service: consultas, profissionalInicial: _matheus));
+      expect(find.text('Dia'), findsOneWidget);
+
+      await tester.ensureVisible(find.text('Dentista'));
+      await tester.tap(find.text('Dentista'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Dr. Jonathan Figueredo'), findsOneWidget);
+      expect(find.text('Dr. Matheus Castro'), findsNothing);
+      expect(find.text('Dia'), findsNothing);
+    });
+
+    testWidgets('sem vagas na faixa, "Outra data" encontra o dia', (tester) async {
+      final distante = DateUtils.addDaysToDate(DateUtils.dateOnly(DateTime.now()), 20);
+      final vazia = AgendaServiceLocal();
+      await vazia.gerarGrade(
+        profissionalId: _matheus.id,
+        data: distante,
+        horarios: const [TimeOfDay(hour: 8, minute: 0)],
+      );
+      await _abrir(tester, AgendamentoTela(service: ConsultaServiceLocal(vazia), profissionalInicial: _matheus));
+      expect(find.textContaining('Sem vagas nos próximos 14 dias'), findsOneWidget);
+
+      await tester.ensureVisible(find.text('Outra data'));
+      await tester.tap(find.text('Outra data'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.edit_outlined));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).last, formatarData(distante));
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text('08:00'));
+      expect(find.text('08:00'), findsOneWidget);
+    });
+
+    testWidgets('abre pelo menu inferior e pelo Perfil do Profissional', (tester) async {
       await _abrir(tester, const HomeTela());
 
       await tester.tap(find.text('Agendar'));
       await tester.pumpAndSettle();
-      expect(find.text('Agendar Consulta'), findsOneWidget);
+      expect(find.text('Escolha o profissional, o dia e o horário.'), findsOneWidget);
 
       await tester.tap(find.text('Início'));
       await tester.pumpAndSettle();
@@ -208,8 +231,9 @@ void main() {
       await tester.tap(find.text('Agendar consulta'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Agendar Consulta'), findsOneWidget);
-      expect(find.text('Dr. Bruno Almeida — Ortopedista'), findsOneWidget);
+      expect(find.text('Escolha o profissional, o dia e o horário.'), findsOneWidget);
+      // O profissional do perfil já vem escolhido (a seção Dia só aparece com ele).
+      expect(find.text('Dia'), findsOneWidget);
     });
   });
 }

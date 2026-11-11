@@ -91,17 +91,10 @@ class HomeTela extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 28),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                'Categorias',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: GaspoCores.azulTitulo,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: _buildQuadroCategorias(),
             ),
             const SizedBox(height: 20),
             Expanded(
@@ -174,6 +167,70 @@ class HomeTela extends StatelessWidget {
       ),
       bottomNavigationBar: const GaspoBottomNav(
         currentIndex: GaspoBottomNav.inicio,
+      ),
+    );
+  }
+
+  /// Título "Categorias" num quadro no mesmo estilo do banner de Avisos,
+  /// com imagem própria no mesmo tom de azul.
+  Widget _buildQuadroCategorias() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        image: const DecorationImage(
+          image: AssetImage('assets/banner_categorias.png'),
+          fit: BoxFit.cover,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: GaspoCores.azul.withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.grid_view_rounded, color: Colors.white, size: 28),
+              const SizedBox(width: 8),
+              // Encolhe em vez de estourar com fonte grande (acessibilidade).
+              const Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Categorias',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Balãozinho decorativo no canto superior direito
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.local_hospital_outlined, color: Colors.white, size: 20),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Escolha o serviço que você precisa.',
+            style: TextStyle(color: Colors.white70, fontSize: 14),
+          ),
+        ],
       ),
     );
   }

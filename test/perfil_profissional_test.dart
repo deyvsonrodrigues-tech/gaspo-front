@@ -89,9 +89,9 @@ void main() {
     await tester.tap(find.textContaining('10:00'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Agendar Consulta'), findsOneWidget);
-    expect(find.text('Resumo'), findsOneWidget);
-    expect(find.text('Dr. Matheus Castro — Clínico Geral'), findsWidgets);
+    expect(find.text('Escolha o profissional, o dia e o horário.'), findsOneWidget);
+    expect(find.textContaining('às 10:00'), findsOneWidget);
+    expect(find.text('Confirmar'), findsOneWidget);
   });
 
   testWidgets('avaliar volta ao perfil e mostra a nova avaliação', (tester) async {

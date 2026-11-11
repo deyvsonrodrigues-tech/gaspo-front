@@ -9,7 +9,6 @@ import '../../servicos/consulta_service.dart';
 import '../../servicos/profissional_service.dart';
 import '../../utils/formatadores.dart';
 import '../../utils/mensagens.dart';
-import '../../widgets/campos_formulario.dart';
 import '../../widgets/gaspo_bottom_nav.dart';
 import '../../widgets/gaspo_header.dart';
 
@@ -23,13 +22,13 @@ class AgendamentoArgumentos {
   const AgendamentoArgumentos(this.profissional, {this.horario});
 }
 
-/// Agendamento de Consultas: o paciente escolhe o profissional, a data e um
-/// dos horários livres da agenda (cadastrada pelo funcionário).
+/// Agendamento de Consultas: o paciente escolhe o profissional, um dia com
+/// vaga e um dos horários livres da agenda (cadastrada pelo funcionário).
 class AgendamentoTela extends StatefulWidget {
   /// Profissional já escolhido (ex.: vindo do Perfil do Profissional).
   final Profissional? profissionalInicial;
 
-  /// Horário já escolhido; define a data e fica selecionado se ainda estiver livre.
+  /// Horário já escolhido; define o dia e fica selecionado se ainda estiver livre.
   final HorarioAgenda? horarioInicial;
 
   /// Permite injetar outra implementação (ex.: nos testes).
@@ -42,43 +41,57 @@ class AgendamentoTela extends StatefulWidget {
     this.service,
   });
 
+  /// Quantos dias aparecem na faixa de dias.
+  static const int diasNaFaixa = 14;
+
   @override
   State<AgendamentoTela> createState() => _AgendamentoTelaState();
 }
 
 class _AgendamentoTelaState extends State<AgendamentoTela> {
-  late final ConsultaService _service =
-      widget.service ?? ConsultaService.instancia;
+  static const List<String> _diasDaSemana = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'];
+  static const List<String> _diasDaSemanaExtenso = [
+    'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo',
+  ];
+
+  late final ConsultaService _service = widget.service ?? ConsultaService.instancia;
 
   List<Profissional> _profissionais = [];
   bool _carregandoProfissionais = true;
+  String? _especialidade;
+  Profissional? _profissional;
+
+  /// Vagas por profissional (id) e por dia, nos próximos [AgendamentoTela.diasNaFaixa] dias.
+  final Map<int, Map<DateTime, List<HorarioAgenda>>> _vagas = {};
+
+  /// Dia escolhido em "Outra data", fora da faixa.
+  DateTime? _diaExtra;
+  List<HorarioAgenda> _vagasDiaExtra = [];
+
+  DateTime? _dia;
+  HorarioAgenda? _horarioEscolhido;
+  bool _agendando = false;
+
+  /// Horário vindo de outra tela, selecionado quando as vagas carregam.
+  HorarioAgenda? _horarioPendente;
+
+  List<DateTime> get _diasDaFaixa {
+    final hoje = DateUtils.dateOnly(DateTime.now());
+    return [for (var i = 0; i < AgendamentoTela.diasNaFaixa; i++) DateUtils.addDaysToDate(hoje, i)];
+  }
 
   List<String> get _especialidades =>
       _profissionais.map((p) => p.especialidade).toSet().toList()..sort();
 
-  String? _especialidade;
-  Profissional? _profissional;
-  DateTime _data = DateUtils.dateOnly(DateTime.now());
-
-  List<HorarioAgenda> _horarios = [];
-  HorarioAgenda? _horarioEscolhido;
-  bool _carregandoHorarios = false;
-  bool _agendando = false;
-
-  /// Evita que uma busca antiga sobrescreva a mais recente.
-  int _buscaAtual = 0;
-
-  /// Horário vindo de outra tela, selecionado na primeira busca.
-  HorarioAgenda? _horarioPendente;
+  List<Profissional> get _profissionaisFiltrados => _especialidade == null
+      ? _profissionais
+      : _profissionais.where((p) => p.especialidade == _especialidade).toList();
 
   @override
   void initState() {
     super.initState();
     _profissional = widget.profissionalInicial;
     _horarioPendente = widget.horarioInicial;
-    if (_horarioPendente != null) {
-      _data = DateUtils.dateOnly(_horarioPendente!.data);
-    }
     _carregarProfissionais();
   }
 
@@ -89,80 +102,133 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
       setState(() {
         _profissionais = lista;
         // O profissional recebido pode ter sido removido nesse meio-tempo.
-        if (_profissional != null && !lista.contains(_profissional)) {
-          _profissional = null;
-        }
+        if (_profissional != null && !lista.contains(_profissional)) _profissional = null;
       });
-      if (_profissional != null) _carregarHorarios();
     } catch (_) {
-      if (mounted) {
-        mostrarMensagem(context, 'Não foi possível carregar os profissionais.');
-      }
+      if (mounted) mostrarMensagem(context, 'Não foi possível carregar os profissionais.');
     } finally {
       if (mounted) setState(() => _carregandoProfissionais = false);
     }
+    // Vagas de todos (mostradas nos cartões); o escolhido primeiro.
+    final escolhido = _profissional;
+    if (escolhido != null) await _carregarVagas(escolhido);
+    for (final p in _profissionais) {
+      if (p != escolhido) _carregarVagas(p);
+    }
   }
 
-  List<Profissional> get _profissionaisFiltrados => _especialidade == null
-      ? _profissionais
-      : _profissionais.where((p) => p.especialidade == _especialidade).toList();
-
-  Future<void> _carregarHorarios() async {
-    final profissional = _profissional;
-    final busca = ++_buscaAtual;
-    setState(() {
-      _horarioEscolhido = null;
-      _horarios = [];
-      _carregandoHorarios = profissional != null;
-    });
-    if (profissional == null) return;
-
+  /// Busca as vagas do profissional dia a dia (a API consulta um dia por vez).
+  Future<void> _carregarVagas(Profissional profissional, {bool recarregar = false}) async {
+    if (_vagas.containsKey(profissional.id) && !recarregar) return;
     try {
-      final livres = await _service.horariosDisponiveis(
-        profissionalId: profissional.id,
-        data: _data,
-      );
-      if (!mounted || busca != _buscaAtual) return;
-      // A API só aceita consultas futuras: esconde horários de hoje que já passaram.
       final agora = DateTime.now();
+      final dias = _diasDaFaixa;
+      final resultados = await Future.wait(
+        dias.map((dia) => _service.horariosDisponiveis(profissionalId: profissional.id, data: dia)),
+      );
+      if (!mounted) return;
       setState(() {
-        _horarios = livres.where((h) => _dataHora(h).isAfter(agora)).toList();
-        final pendente = _horarioPendente;
-        _horarioPendente = null;
-        if (pendente != null) {
-          _horarioEscolhido = _horarios
-              .where((h) => h.id == pendente.id)
-              .firstOrNull;
-        }
+        _vagas[profissional.id] = {
+          for (var i = 0; i < dias.length; i++)
+            // A API só aceita consultas futuras: esconde horários de hoje que já passaram.
+            dias[i]: resultados[i].where((h) => _dataHora(h).isAfter(agora)).toList(),
+        };
+        if (profissional == _profissional) _aplicarDiaInicial();
       });
     } catch (_) {
-      if (mounted) {
+      if (mounted && profissional == _profissional) {
         mostrarMensagem(context, 'Não foi possível carregar os horários.');
-      }
-    } finally {
-      if (mounted && busca == _buscaAtual) {
-        setState(() => _carregandoHorarios = false);
       }
     }
   }
 
-  DateTime _dataHora(HorarioAgenda h) => DateTime(
-    h.data.year,
-    h.data.month,
-    h.data.day,
-    h.horario.hour,
-    h.horario.minute,
-  );
+  /// Escolhe o dia do horário recebido ou o primeiro dia com vaga.
+  void _aplicarDiaInicial() {
+    final vagas = _vagas[_profissional?.id];
+    if (vagas == null) return;
+    final pendente = _horarioPendente;
+    _horarioPendente = null;
+    if (pendente != null) {
+      final dia = DateUtils.dateOnly(pendente.data);
+      final livre = vagas[dia]?.where((h) => h.id == pendente.id).firstOrNull;
+      if (livre != null) {
+        _dia = dia;
+        _horarioEscolhido = livre;
+        return;
+      }
+    }
+    // Ao recarregar, continua no dia escolhido se ele ainda tiver vaga.
+    final atual = _dia;
+    if (atual != null && (vagas[atual]?.isNotEmpty ?? false)) return;
+    _dia = vagas.entries.where((e) => e.value.isNotEmpty).map((e) => e.key).firstOrNull;
+  }
+
+  DateTime _dataHora(HorarioAgenda h) =>
+      DateTime(h.data.year, h.data.month, h.data.day, h.horario.hour, h.horario.minute);
+
+  List<HorarioAgenda> get _vagasDoDia {
+    final dia = _dia;
+    if (dia == null) return [];
+    if (_diaExtra != null && DateUtils.isSameDay(dia, _diaExtra)) return _vagasDiaExtra;
+    return _vagas[_profissional?.id]?[dia] ?? [];
+  }
+
+  String _diaCurto(DateTime dia) => '${_diasDaSemana[dia.weekday - 1]} ${formatarData(dia).substring(0, 5)}';
+
+  void _escolherProfissional(Profissional profissional) {
+    setState(() {
+      _profissional = profissional;
+      _horarioEscolhido = null;
+      _diaExtra = null;
+      _dia = null;
+      if (_vagas.containsKey(profissional.id)) _aplicarDiaInicial();
+    });
+    _carregarVagas(profissional);
+  }
 
   void _escolherEspecialidade(String? especialidade) {
     setState(() {
       _especialidade = especialidade;
-      if (_profissional != null &&
-          !_profissionaisFiltrados.contains(_profissional)) {
+      if (_profissional != null && !_profissionaisFiltrados.contains(_profissional)) {
         _profissional = null;
+        _dia = null;
+        _horarioEscolhido = null;
       }
     });
-    _carregarHorarios();
+  }
+
+  Future<void> _escolherOutraData() async {
+    final profissional = _profissional;
+    if (profissional == null) return;
+    final hoje = DateUtils.dateOnly(DateTime.now());
+    final escolhida = await showDatePicker(
+      context: context,
+      initialDate: _dia ?? hoje,
+      firstDate: hoje,
+      lastDate: hoje.add(const Duration(days: 365)),
+    );
+    if (escolhida == null || !mounted) return;
+
+    final dia = DateUtils.dateOnly(escolhida);
+    if (_diasDaFaixa.any((d) => DateUtils.isSameDay(d, dia))) {
+      setState(() {
+        _dia = dia;
+        _horarioEscolhido = null;
+      });
+      return;
+    }
+    try {
+      final livres = await _service.horariosDisponiveis(profissionalId: profissional.id, data: dia);
+      if (!mounted) return;
+      setState(() {
+        _diaExtra = dia;
+        _vagasDiaExtra = livres;
+        _dia = dia;
+        _horarioEscolhido = null;
+      });
+    } catch (_) {
+      if (mounted) mostrarMensagem(context, 'Não foi possível carregar os horários.');
+    }
   }
 
   Future<void> _confirmar() async {
@@ -179,9 +245,12 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
       );
     } on AgendamentoException catch (e) {
       if (!mounted) return;
-      setState(() => _agendando = false);
+      setState(() {
+        _agendando = false;
+        _horarioEscolhido = null;
+      });
       mostrarMensagem(context, e.mensagem);
-      _carregarHorarios();
+      _carregarVagas(profissional, recarregar: true);
       return;
     } catch (_) {
       if (!mounted) return;
@@ -210,19 +279,9 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
           children: [
             _linhaResumo(Icons.person_outline, consulta.nomeProfissional),
             if (consulta.especialidadeProfissional != null)
-              _linhaResumo(
-                Icons.medical_services_outlined,
-                consulta.especialidadeProfissional!,
-              ),
-            _linhaResumo(
-              Icons.event,
-              MaterialLocalizations.of(context)
-                  .formatFullDate(consulta.dataHora),
-            ),
-            _linhaResumo(
-              Icons.access_time,
-              formatarHora(TimeOfDay.fromDateTime(consulta.dataHora)),
-            ),
+              _linhaResumo(Icons.medical_services_outlined, consulta.especialidadeProfissional!),
+            _linhaResumo(Icons.event, MaterialLocalizations.of(context).formatFullDate(consulta.dataHora)),
+            _linhaResumo(Icons.access_time, formatarHora(TimeOfDay.fromDateTime(consulta.dataHora))),
           ],
         ),
         actions: [
@@ -248,64 +307,338 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
     );
   }
 
-  Widget _subtitulo(String texto) {
-    return Text(
-      texto,
-      style: const TextStyle(
-        fontSize: 15,
-        color: GaspoCores.azulTitulo,
-        fontWeight: FontWeight.w600,
+  Widget _secao(String titulo, {Widget? acao}) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24, bottom: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              titulo,
+              style: const TextStyle(fontSize: 16, color: GaspoCores.azulTitulo, fontWeight: FontWeight.w600),
+            ),
+          ),
+          ?acao,
+        ],
       ),
     );
   }
 
-  Widget _buildHorarios() {
-    if (_profissional == null) {
-      return const Text(
-        'Escolha um profissional para ver os horários livres.',
-        style: TextStyle(fontSize: 13, color: Colors.black54),
+  // ESPECIALIDADE: filtro em botões
+  Widget _buildFiltroEspecialidade() {
+    Widget chip(String rotulo, String? valor) {
+      final selecionado = _especialidade == valor;
+      return Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: ChoiceChip(
+          label: Text(rotulo),
+          selected: selecionado,
+          showCheckmark: false,
+          selectedColor: GaspoCores.azul,
+          backgroundColor: Colors.white,
+          side: BorderSide(color: selecionado ? GaspoCores.azul : Colors.black26),
+          labelStyle: TextStyle(
+            fontSize: 14,
+            color: selecionado ? Colors.white : GaspoCores.azulTitulo,
+            fontWeight: FontWeight.w500,
+          ),
+          onSelected: (_) => _escolherEspecialidade(valor),
+        ),
       );
     }
-    if (_carregandoHorarios) {
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          chip('Todas', null),
+          for (final especialidade in _especialidades) chip(especialidade, especialidade),
+        ],
+      ),
+    );
+  }
+
+  // PROFISSIONAL: cartões com status e próxima vaga
+  Widget _buildCartaoProfissional(Profissional p) {
+    final selecionado = p == _profissional;
+    final vagas = _vagas[p.id];
+    final proximaVaga = vagas?.entries.where((e) => e.value.isNotEmpty).map((e) => e.key).firstOrNull;
+    final detalhe = vagas == null
+        ? 'buscando vagas…'
+        : proximaVaga == null
+            ? 'sem vagas nos próximos ${AgendamentoTela.diasNaFaixa} dias'
+            : 'próxima vaga ${_diaCurto(proximaVaga)}';
+    final iniciais = p.nome
+        .replaceAll(RegExp(r'^(Dra?\.)\s*'), '')
+        .split(' ')
+        .where((parte) => parte.isNotEmpty)
+        .take(2)
+        .map((parte) => parte[0])
+        .join();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: Colors.white,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: selecionado ? GaspoCores.azul : Colors.black12,
+            width: selecionado ? 2 : 1,
+          ),
+        ),
+        child: InkWell(
+          onTap: () => _escolherProfissional(p),
+          child: Semantics(
+            selected: selecionado,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: p.status.cor, width: 2),
+                    ),
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: selecionado ? GaspoCores.azul.withValues(alpha: 0.1) : Colors.blueGrey[50],
+                      child: Text(
+                        iniciais,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: selecionado ? GaspoCores.azul : Colors.blueGrey,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          p.nome,
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${p.especialidade} · $detalhe',
+                          style: const TextStyle(fontSize: 13, color: Colors.black54),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (selecionado) const Icon(Icons.check_circle, color: GaspoCores.azul),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // DIA: faixa com os próximos dias e quantas vagas cada um tem
+  Widget _buildFaixaDias() {
+    final vagas = _vagas[_profissional?.id];
+    if (vagas == null) {
       return const Padding(
         padding: EdgeInsets.all(16),
         child: Center(child: CircularProgressIndicator()),
       );
     }
-    if (_horarios.isEmpty) {
-      return const Text(
-        'Nenhum horário disponível nesta data. Tente outro dia.',
-        style: TextStyle(fontSize: 13, color: Colors.black54),
+    final dias = [..._diasDaFaixa, ?_diaExtra];
+
+    return SizedBox(
+      height: 84,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: dias.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, indice) {
+          final dia = dias[indice];
+          final ehExtra = _diaExtra != null && DateUtils.isSameDay(dia, _diaExtra);
+          final quantidade = ehExtra ? _vagasDiaExtra.length : (vagas[dia]?.length ?? 0);
+          final selecionado = _dia != null && DateUtils.isSameDay(dia, _dia);
+          final ativo = quantidade > 0;
+          final corTexto = selecionado ? Colors.white : (ativo ? GaspoCores.azulEscuro : Colors.black26);
+
+          return Semantics(
+            button: true,
+            selected: selecionado,
+            enabled: ativo,
+            label: '${_diasDaSemanaExtenso[dia.weekday - 1]}, ${formatarData(dia).substring(0, 5)}, '
+                '${ativo ? '$quantidade vagas' : 'sem vagas'}',
+            excludeSemantics: true,
+            child: Material(
+              color: selecionado ? GaspoCores.azul : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: selecionado ? GaspoCores.azul : Colors.black12),
+              ),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: ativo
+                    ? () => setState(() {
+                          _dia = dia;
+                          _horarioEscolhido = null;
+                        })
+                    : null,
+                child: SizedBox(
+                  width: 66,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(_diasDaSemana[dia.weekday - 1], style: TextStyle(fontSize: 13, color: corTexto)),
+                      Text(
+                        '${dia.day}',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: corTexto),
+                      ),
+                      Text(
+                        ativo ? '$quantidade ${quantidade == 1 ? 'vaga' : 'vagas'}' : '–',
+                        style: TextStyle(fontSize: 11, color: corTexto),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // HORÁRIO: botões grandes agrupados por período
+  Widget _buildHorarios() {
+    final vagas = _vagasDoDia;
+    if (_dia == null) {
+      return Text(
+        'Sem vagas nos próximos ${AgendamentoTela.diasNaFaixa} dias. Escolha outra data ou outro profissional.',
+        style: const TextStyle(fontSize: 14, color: Colors.black54),
       );
     }
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+    if (vagas.isEmpty) {
+      return const Text(
+        'Nenhum horário livre neste dia. Escolha outro dia.',
+        style: TextStyle(fontSize: 14, color: Colors.black54),
+      );
+    }
+
+    final periodos = <String, List<HorarioAgenda>>{
+      'Manhã': vagas.where((h) => h.horario.hour < 12).toList(),
+      'Tarde': vagas.where((h) => h.horario.hour >= 12 && h.horario.hour < 18).toList(),
+      'Noite': vagas.where((h) => h.horario.hour >= 18).toList(),
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final horario in _horarios)
-          ChoiceChip(
-            label: Text(formatarHora(horario.horario)),
-            selected: _horarioEscolhido?.id == horario.id,
-            showCheckmark: false,
-            selectedColor: GaspoCores.azul,
-            backgroundColor: Colors.white,
-            side: const BorderSide(color: GaspoCores.azul),
-            labelStyle: TextStyle(
-              color: _horarioEscolhido?.id == horario.id
-                  ? Colors.white
-                  : GaspoCores.azul,
-              fontWeight: FontWeight.w600,
+        for (final MapEntry(key: periodo, value: horarios) in periodos.entries)
+          if (horarios.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(periodo, style: const TextStyle(fontSize: 13, color: Colors.black54)),
             ),
-            onSelected: (_) => setState(() => _horarioEscolhido = horario),
-          ),
+            GridView.count(
+              crossAxisCount: 3,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 2.4,
+              children: [for (final h in horarios) _botaoHorario(h)],
+            ),
+            const SizedBox(height: 14),
+          ],
       ],
+    );
+  }
+
+  Widget _botaoHorario(HorarioAgenda horario) {
+    final selecionado = _horarioEscolhido?.id == horario.id;
+    return Semantics(
+      selected: selecionado,
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          backgroundColor: selecionado ? GaspoCores.azul : Colors.white,
+          foregroundColor: selecionado ? Colors.white : GaspoCores.azul,
+          side: const BorderSide(color: GaspoCores.azul),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        onPressed: () => setState(() => _horarioEscolhido = horario),
+        child: Text(formatarHora(horario.horario)),
+      ),
+    );
+  }
+
+  // RODAPÉ: resumo e confirmação, sempre à vista depois de escolher o horário
+  Widget _buildBarraConfirmacao() {
+    final horario = _horarioEscolhido!;
+    final profissional = _profissional!;
+    final dia = horario.data;
+    return Material(
+      color: Colors.white,
+      elevation: 8,
+      child: SafeArea(
+        top: false,
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '${_diasDaSemanaExtenso[dia.weekday - 1]}, ${formatarData(dia).substring(0, 5)} às ${formatarHora(horario.horario)}',
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: GaspoCores.azulEscuro),
+                    ),
+                    Text(
+                      profissional.nome,
+                      style: const TextStyle(fontSize: 13, color: Colors.black54),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              SizedBox(
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: GaspoCores.azul,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 22),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                  onPressed: _agendando ? null : _confirmar,
+                  child: _agendando
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                        )
+                      : const Text('Confirmar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final profissional = _profissional;
-    final horario = _horarioEscolhido;
 
     return Scaffold(
       body: SafeArea(
@@ -320,150 +653,58 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
                   const GaspoHeader(),
                   const SizedBox(height: 12),
                   const Text(
-                    'Agendar Consulta',
-                    style: TextStyle(
-                      fontSize: 19,
-                      color: GaspoCores.azulTitulo,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    'Agendar consulta',
+                    style: TextStyle(fontSize: 22, color: GaspoCores.azulEscuro, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Escolha o profissional, o dia e o horário.',
+                    style: TextStyle(fontSize: 14, color: Colors.black54),
+                  ),
 
-                  // Os campos só são montados depois de carregar, para já virem preenchidos.
                   if (_carregandoProfissionais)
                     const Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: EdgeInsets.all(24),
                       child: Center(child: CircularProgressIndicator()),
                     )
                   else ...[
-                    DropdownButtonFormField<String?>(
-                      isExpanded: true,
-                      initialValue: _especialidade,
-                      icon: const Icon(
-                        Icons.arrow_drop_down,
-                        color: GaspoCores.azulTitulo,
-                      ),
-                      decoration: decoracaoCampo(
-                        'Especialidade',
-                        Icons.medical_services_outlined,
-                      ),
-                      items: [
-                        const DropdownMenuItem<String?>(
-                          value: null,
-                          child: Text('Todas', style: TextStyle(fontSize: 14)),
+                    const SizedBox(height: 18),
+                    _buildFiltroEspecialidade(),
+                    _secao('Profissional'),
+                    if (_profissionaisFiltrados.isEmpty)
+                      const Text('Nenhum profissional nesta especialidade.', style: TextStyle(color: Colors.black54))
+                    else
+                      for (final p in _profissionaisFiltrados) _buildCartaoProfissional(p),
+
+                    if (profissional != null) ...[
+                      _secao(
+                        'Dia',
+                        acao: TextButton.icon(
+                          onPressed: _escolherOutraData,
+                          icon: const Icon(Icons.calendar_month_outlined, size: 18),
+                          label: const Text('Outra data'),
                         ),
-                        for (final especialidade in _especialidades)
-                          DropdownMenuItem<String?>(
-                            value: especialidade,
-                            child: Text(
-                              especialidade,
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                          ),
-                      ],
-                      onChanged: _escolherEspecialidade,
-                    ),
-                    const SizedBox(height: 16),
-
-                    DropdownButtonFormField<Profissional>(
-                      // Recria o campo quando o filtro muda a lista de opções.
-                      key: ValueKey('profissional-$_especialidade'),
-                      isExpanded: true,
-                      initialValue: _profissional,
-                      icon: const Icon(
-                        Icons.arrow_drop_down,
-                        color: GaspoCores.azulTitulo,
                       ),
-                      decoration: decoracaoCampo(
-                        'Profissional',
-                        Icons.person_outline,
-                      ),
-                      items: [
-                        for (final p in _profissionaisFiltrados)
-                          DropdownMenuItem<Profissional>(
-                            value: p,
-                            child: Text(
-                              _especialidade == null
-                                  ? '${p.nome} — ${p.especialidade}'
-                                  : p.nome,
-                              style: const TextStyle(fontSize: 14),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
+                      _buildFaixaDias(),
+                      if (_vagas.containsKey(profissional.id)) ...[
+                        _secao('Horário'),
+                        _buildHorarios(),
                       ],
-                      onChanged: (p) {
-                        setState(() => _profissional = p);
-                        _carregarHorarios();
-                      },
-                    ),
+                    ],
                   ],
-                  const SizedBox(height: 16),
-
-                  CampoData(
-                    data: _data,
-                    onChanged: (data) {
-                      setState(() => _data = data);
-                      _carregarHorarios();
-                    },
-                  ),
-
-                  const Divider(
-                    color: Colors.black26,
-                    thickness: 0.8,
-                    height: 40,
-                  ),
-                  _subtitulo('Horários disponíveis'),
-                  const SizedBox(height: 12),
-                  _buildHorarios(),
                   const SizedBox(height: 24),
-
-                  if (profissional != null && horario != null) ...[
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.black12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _subtitulo('Resumo'),
-                          const SizedBox(height: 6),
-                          _linhaResumo(
-                            Icons.person_outline,
-                            '${profissional.nome} — ${profissional.especialidade}',
-                          ),
-                          _linhaResumo(
-                            Icons.event,
-                            MaterialLocalizations.of(context)
-                                .formatFullDate(_data),
-                          ),
-                          _linhaResumo(
-                            Icons.access_time,
-                            formatarHora(horario.horario),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-
-                  BotaoPrincipal(
-                    texto: 'Confirmar agendamento',
-                    carregando: _agendando,
-                    onPressed: horario == null ? null : _confirmar,
-                  ),
-                  const SizedBox(height: 20),
                 ],
               ),
             ),
           ),
         ),
       ),
-      bottomNavigationBar: const GaspoBottomNav(
-        currentIndex: GaspoBottomNav.agendar,
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_horarioEscolhido != null && profissional != null) _buildBarraConfirmacao(),
+          const GaspoBottomNav(currentIndex: GaspoBottomNav.agendar),
+        ],
       ),
     );
   }
