@@ -145,6 +145,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Dr. Matheus Castro').last);
       await tester.pumpAndSettle();
+      await tester.enterText(find.widgetWithText(TextFormField, 'Data'), '10112026');
 
       await tester.ensureVisible(find.text('Avançar para Profissional'));
       await tester.tap(find.text('Avançar para Profissional'));

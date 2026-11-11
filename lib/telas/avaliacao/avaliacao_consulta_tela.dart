@@ -4,20 +4,30 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
 import '../../dados/dados_exemplo.dart';
+import '../../modelos/avaliacao_consulta.dart';
+import '../../modelos/profissional.dart';
+import '../../servicos/avaliacao_consulta_service.dart';
 import '../../servicos/profissional_service.dart';
+import '../../utils/mensagens.dart';
+import '../../utils/validadores.dart';
 import '../../widgets/avaliacao_widgets.dart';
 import '../../widgets/gaspo_bottom_nav.dart';
 import '../../widgets/gaspo_header.dart';
 
 class AvaliacaoConsultaTela extends StatefulWidget {
-  const AvaliacaoConsultaTela({super.key});
+  /// Permite injetar outra implementação (ex.: nos testes).
+  final AvaliacaoConsultaService? service;
+
+  const AvaliacaoConsultaTela({super.key, this.service});
 
   @override
   State<AvaliacaoConsultaTela> createState() => _AvaliacaoConsultaTelaState();
 }
 
 class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
+  final _formKey = GlobalKey<FormState>();
   int _estrelasSelecionadas = 3;
+  bool _enviando = false;
 
   final TextEditingController _dataController = TextEditingController();
   final TextEditingController _horarioController = TextEditingController();
@@ -41,14 +51,67 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
   String? _especialidadeSelecionada;
 
   String? _profissionalSelecionado;
-  List<String> _medicosSistema = [];
+  List<Profissional> _profissionais = [];
+  List<String> get _medicosSistema => _profissionais.map((p) => p.nome).toList();
 
   @override
   void initState() {
     super.initState();
     ProfissionalService.instancia.listar().then((lista) {
-      if (mounted) setState(() => _medicosSistema = lista.map((p) => p.nome).toList());
+      if (mounted) setState(() => _profissionais = lista);
     }).catchError((_) {});
+  }
+
+  String? _validarData(String? valor) {
+    if (valor == null || valor.trim().isEmpty) return 'Informe a data.';
+    final data = lerData(valor);
+    if (data == null) return 'Data inválida.';
+    if (data.isAfter(DateTime.now())) return 'Data no futuro.';
+    return null;
+  }
+
+  String? _validarHorario(String? valor) {
+    final texto = valor?.trim() ?? '';
+    if (texto.isEmpty) return null; // opcional
+    return texto.length == 5 ? null : 'Horário incompleto.';
+  }
+
+  /// Salva a avaliação da consulta e segue para a avaliação do profissional.
+  Future<void> _enviar() async {
+    if (!_formKey.currentState!.validate()) return;
+    final profissional = _profissionais.firstWhere((p) => p.nome == _profissionalSelecionado);
+    final horario = _horarioController.text.trim();
+
+    setState(() => _enviando = true);
+    try {
+      await (widget.service ?? AvaliacaoConsultaService.instancia).avaliar(DadosAvaliacaoConsulta(
+        nota: _estrelasSelecionadas,
+        comentario: _comentarioController.text,
+        especialidade: _especialidadeSelecionada,
+        profissionalId: profissional.id,
+        dataConsulta: lerData(_dataController.text)!,
+        horarioConsulta: horario.isEmpty
+            ? null
+            : TimeOfDay(hour: int.parse(horario.substring(0, 2)), minute: int.parse(horario.substring(3))),
+        unidade: _unidadeController.text,
+      ));
+    } on AvaliacaoConsultaException catch (e) {
+      if (!mounted) return;
+      setState(() => _enviando = false);
+      mostrarMensagem(context, e.mensagem);
+      return;
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _enviando = false);
+      mostrarMensagem(context, 'Não foi possível enviar a avaliação. Tente novamente.');
+      return;
+    }
+    if (!mounted) return;
+    setState(() => _enviando = false);
+    mostrarMensagem(context, 'Avaliação da consulta registrada.');
+
+    // O profissional escolhido aqui já chega selecionado na próxima etapa.
+    Navigator.pushNamed(context, Rotas.avaliacaoProfissional, arguments: _profissionalSelecionado);
   }
 
   @override
@@ -60,7 +123,8 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
     super.dispose();
   }
 
-  Widget _buildMenuResponsivo(String label, IconData icon, List<String> items, String? selectedValue, ValueChanged<String?> onChanged) {
+  Widget _buildMenuResponsivo(String label, IconData icon, List<String> items, String? selectedValue, ValueChanged<String?> onChanged,
+      {FormFieldValidator<String>? validator}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: DropdownButtonFormField<String>(
@@ -89,6 +153,7 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
           );
         }).toList(),
         onChanged: onChanged,
+        validator: validator,
       ),
     );
   }
@@ -97,7 +162,8 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
     String label,
     IconData icon,
     TextEditingController controller,
-    {TextInputType keyboardType = TextInputType.text, MaskTextInputFormatter? formatter, String? hint, bool isDate = false, bool isTime = false}
+    {TextInputType keyboardType = TextInputType.text, MaskTextInputFormatter? formatter, String? hint, bool isDate = false, bool isTime = false,
+    FormFieldValidator<String>? validator}
   ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -105,6 +171,7 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
         controller: controller,
         keyboardType: keyboardType,
         inputFormatters: formatter != null ? [formatter] : [],
+        validator: validator,
         onChanged: (value) {
           if (formatter == null) return;
 
@@ -181,7 +248,9 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
+          child: Form(
+            key: _formKey,
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const GaspoHeader(),
@@ -206,6 +275,7 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
                 _medicosSistema,
                 _profissionalSelecionado,
                 (novoValor) => setState(() => _profissionalSelecionado = novoValor),
+                validator: (v) => v == null ? 'Escolha o profissional.' : null,
               ),
 
               Row(
@@ -219,6 +289,7 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
                       formatter: _dataMask,
                       hint: 'dd/mm/aaaa',
                       isDate: true, // Ativa as validações de limite de calendário
+                      validator: _validarData,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -231,6 +302,7 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
                       formatter: _horarioMask,
                       hint: 'hh:mm',
                       isTime: true, // Ativa as validações de limite de relógio
+                      validator: _validarHorario,
                     ),
                   ),
                 ],
@@ -266,15 +338,14 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
-                  onPressed: () {
-                    // O profissional escolhido aqui já chega selecionado na próxima etapa.
-                    Navigator.pushNamed(
-                      context,
-                      Rotas.avaliacaoProfissional,
-                      arguments: _profissionalSelecionado,
-                    );
-                  },
-                  child: const Text('Avançar para Profissional', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  onPressed: _enviando ? null : _enviar,
+                  child: _enviando
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                        )
+                      : const Text('Avançar para Profissional', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(height: 12),
@@ -285,6 +356,7 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
               ),
               const SizedBox(height: 20),
             ],
+          ),
           ),
         ),
       ),

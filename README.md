@@ -116,6 +116,7 @@ lib/
 │   ├── agenda_service.dart    # /api/agendas: gerar grade, listar, atualizar, remover
 │   ├── consulta_service.dart  # /api/consultas: horários livres, agendar, ativas, histórico, cancelar
 │   ├── avaliacao_service.dart # /api/avaliacoes: avaliar e listar por profissional
+│   ├── avaliacao_consulta_service.dart # /api/avaliacoes-consulta: avaliar a consulta, minhas avaliações
 │   ├── profissional_service.dart # /api/profissionais: listar, cadastrar, editar, status, remover
 │   └── aviso_service.dart     # /api/avisos: listar, publicar, editar, remover
 ├── utils/                     # SnackBars, formatação de data/hora e saída da conta
