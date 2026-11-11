@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../app/rotas.dart';
 import '../app/tema.dart';
-import '../utils/mensagens.dart';
 
 /// Menu inferior compartilhado por todas as telas internas.
 class GaspoBottomNav extends StatelessWidget {
@@ -35,7 +34,13 @@ class GaspoBottomNav extends StatelessWidget {
           );
         }
       case historico:
-        mostrarEmDesenvolvimento(context, 'Histórico');
+        if (currentIndex != historico) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            Rotas.historico,
+            ModalRoute.withName(Rotas.home),
+          );
+        }
     }
   }
 

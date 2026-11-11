@@ -85,6 +85,13 @@ class PainelFuncionarioTela extends StatelessWidget {
                   ),
                   _opcao(
                     context,
+                    icone: Icons.event_note_outlined,
+                    titulo: 'Consultas Marcadas',
+                    descricao: 'Acompanhar e atualizar o status das consultas',
+                    onTap: () => Navigator.pushNamed(context, Rotas.consultasMarcadas),
+                  ),
+                  _opcao(
+                    context,
                     icone: Icons.campaign_outlined,
                     titulo: 'Avisos',
                     descricao: 'Publicar e gerenciar comunicados',

@@ -9,3 +9,11 @@ String formatarData(DateTime data) =>
 /// 08:30
 String formatarHora(TimeOfDay hora) =>
     '${_doisDigitos(hora.hour)}:${_doisDigitos(hora.minute)}';
+
+const _mesesAbreviados = [
+  'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN',
+  'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ',
+];
+
+/// OUT
+String mesAbreviado(DateTime data) => _mesesAbreviados[data.month - 1];

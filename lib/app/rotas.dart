@@ -5,6 +5,7 @@ import '../modelos/perfil_acesso.dart';
 import '../modelos/profissional.dart';
 import '../telas/admin/avisos_publicados_tela.dart';
 import '../telas/admin/cadastro_horarios_tela.dart';
+import '../telas/admin/consultas_marcadas_tela.dart';
 import '../telas/admin/formulario_aviso_tela.dart';
 import '../telas/admin/formulario_medico_tela.dart';
 import '../telas/admin/medicos_tela.dart';
@@ -19,6 +20,7 @@ import '../telas/avaliacao/avaliacao_consulta_tela.dart';
 import '../telas/avaliacao/avaliacao_profissional_tela.dart';
 import '../telas/especialistas/perfil_profissional_tela.dart';
 import '../telas/especialistas/especialistas_tela.dart';
+import '../telas/historico/historico_consultas_tela.dart';
 import '../telas/inicio/home_tela.dart';
 import '../telas/notificacoes/notificacoes_tela.dart';
 import '../telas/perfil/perfil_tela.dart';
@@ -27,7 +29,8 @@ import '../telas/unidade/localizacao_tela.dart';
 /// Rotas nomeadas de todo o aplicativo.
 ///
 /// Fluxo: Splash → Entrada → Login/Cadastro → Início → módulos.
-/// Funcionário: Entrada → Login → Painel (Médicos, Cadastro de Horários, Avisos).
+/// Funcionário: Entrada → Login → Painel (Médicos, Cadastro de Horários,
+/// Consultas Marcadas, Avisos).
 class Rotas {
   Rotas._();
 
@@ -50,6 +53,7 @@ class Rotas {
   static const String notificacoes = '/notificacoes';
   static const String avisos = '/avisos';
   static const String perfil = '/perfil';
+  static const String historico = '/historico';
 
   /// Argumento opcional: [AgendamentoArgumentos].
   static const String agendamento = '/agendamento';
@@ -58,6 +62,7 @@ class Rotas {
   static const String painelFuncionario = '/painel-funcionario';
   static const String cadastroHorarios = '/cadastro-horarios';
   static const String medicos = '/medicos';
+  static const String consultasMarcadas = '/consultas-marcadas';
 
   /// Argumento opcional: [Profissional] a editar (sem argumento: cadastro).
   static const String formularioMedico = '/medico-formulario';
@@ -91,6 +96,7 @@ class Rotas {
       notificacoes => const NotificacoesTela(),
       avisos => const AvisosTela(),
       perfil => const PerfilTela(),
+      historico => const HistoricoConsultasTela(),
       agendamento => AgendamentoTela(
           profissionalInicial: (settings.arguments as AgendamentoArgumentos?)?.profissional,
           horarioInicial: (settings.arguments as AgendamentoArgumentos?)?.horario,
@@ -98,6 +104,7 @@ class Rotas {
       painelFuncionario => const PainelFuncionarioTela(),
       cadastroHorarios => const CadastroHorariosTela(),
       medicos => const MedicosTela(),
+      consultasMarcadas => const ConsultasMarcadasTela(),
       avisosPublicados => const AvisosPublicadosTela(),
       formularioAviso => FormularioAvisoTela(aviso: settings.arguments as Aviso?),
       formularioMedico => FormularioMedicoTela(

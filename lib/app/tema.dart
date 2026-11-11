@@ -39,6 +39,11 @@ class GaspoCores {
   /// Estrelas das avaliações.
   static const Color estrelaAtiva = Color(0xFFFFB321);
   static const Color estrelaInativa = Color(0xFFD2D2D2);
+
+  /// Status das consultas (Histórico e Consultas Marcadas).
+  static const Color statusAgendada = Color(0xFFF2A62C);
+  static const Color statusRealizada = Color(0xFF1FA84A);
+  static const Color statusCancelada = Color(0xFFE53935);
 }
 
 ThemeData criarTemaGaspo() {
