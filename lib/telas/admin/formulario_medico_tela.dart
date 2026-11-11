@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../../app/tema.dart';
 import '../../dados/dados_exemplo.dart';
 import '../../modelos/profissional.dart';
 import '../../servicos/profissional_service.dart';
 import '../../utils/mensagens.dart';
+import '../../utils/validadores.dart';
 import '../../widgets/campos_formulario.dart';
 import '../../widgets/gaspo_header.dart';
 
@@ -24,8 +24,6 @@ class FormularioMedicoTela extends StatefulWidget {
 }
 
 class _FormularioMedicoTelaState extends State<FormularioMedicoTela> {
-  static final RegExp _formatoEmail = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-
   late final ProfissionalService _service = widget.service ?? ProfissionalService.instancia;
   final _formKey = GlobalKey<FormState>();
 
@@ -34,11 +32,7 @@ class _FormularioMedicoTelaState extends State<FormularioMedicoTela> {
   late final _email = TextEditingController(text: widget.profissional?.email);
   late final _telefone = TextEditingController(text: widget.profissional?.telefone);
 
-  final _mascaraTelefone = MaskTextInputFormatter(
-    mask: '(##) #####-####',
-    filter: {'#': RegExp(r'[0-9]')},
-    type: MaskAutoCompletionType.lazy,
-  );
+  final _mascaraTelefone = mascaraTelefone();
 
   late StatusProfissional _status = widget.profissional?.status ?? StatusProfissional.presente;
   late bool _atendeNaUnidade = widget.profissional == null || widget.profissional!.unidade != null;
@@ -57,18 +51,6 @@ class _FormularioMedicoTelaState extends State<FormularioMedicoTela> {
 
   String? _obrigatorio(String? valor, String campo) =>
       (valor == null || valor.trim().isEmpty) ? 'Informe $campo.' : null;
-
-  String? _validarEmail(String? valor) {
-    final texto = valor?.trim() ?? '';
-    if (texto.isEmpty) return null;
-    return _formatoEmail.hasMatch(texto) ? null : 'E-mail inválido.';
-  }
-
-  String? _validarTelefone(String? valor) {
-    final digitos = (valor ?? '').replaceAll(RegExp(r'\D'), '');
-    if (digitos.isEmpty) return null;
-    return (digitos.length == 10 || digitos.length == 11) ? null : 'Telefone incompleto.';
-  }
 
   Future<void> _salvar() async {
     if (!_formKey.currentState!.validate()) return;
@@ -152,7 +134,7 @@ class _FormularioMedicoTelaState extends State<FormularioMedicoTela> {
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       decoration: decoracaoCampo('E-mail', Icons.mail_outline),
-                      validator: _validarEmail,
+                      validator: (v) => validarEmail(v, obrigatorio: false),
                     ),
                     const SizedBox(height: 16),
 
@@ -162,7 +144,7 @@ class _FormularioMedicoTelaState extends State<FormularioMedicoTela> {
                       inputFormatters: [_mascaraTelefone],
                       decoration: decoracaoCampo('Telefone', Icons.phone_outlined)
                           .copyWith(hintText: '(00) 00000-0000'),
-                      validator: _validarTelefone,
+                      validator: validarTelefone,
                     ),
                     const SizedBox(height: 16),
 

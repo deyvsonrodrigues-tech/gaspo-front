@@ -3,22 +3,35 @@ import 'package:flutter/material.dart';
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
 import '../../utils/mensagens.dart';
+import '../../utils/validadores.dart';
+import '../../widgets/campos_formulario.dart';
 import '../../widgets/gaspo_header.dart';
 
+/// Cadastro de paciente. Os campos seguem o UsuarioCadastroDTO da API
+/// (nome, CPF, data de nascimento, telefone, e-mail e senha).
 class CadastroTela extends StatefulWidget {
   const CadastroTela({super.key});
+
+  static const int tamanhoMinimoSenha = 6;
 
   @override
   State<CadastroTela> createState() => _CadastroTelaState();
 }
 
 class _CadastroTelaState extends State<CadastroTela> {
+  final _formKey = GlobalKey<FormState>();
+
   final nome = TextEditingController();
   final nascimento = TextEditingController();
   final cpf = TextEditingController();
+  final email = TextEditingController();
   final telefone = TextEditingController();
   final senha = TextEditingController();
   final confirmarSenha = TextEditingController();
+
+  final _mascaraData = mascaraData();
+  final _mascaraCpf = mascaraCpf();
+  final _mascaraTelefone = mascaraTelefone();
 
   bool mostrarSenha = false;
 
@@ -27,204 +40,198 @@ class _CadastroTelaState extends State<CadastroTela> {
     nome.dispose();
     nascimento.dispose();
     cpf.dispose();
+    email.dispose();
     telefone.dispose();
     senha.dispose();
     confirmarSenha.dispose();
     super.dispose();
   }
 
-  // CRIAR CAMPOS DO CADASTRO
-  Widget criarCampo(
-    String titulo,
-    TextEditingController controle, {
-    bool campoSenha = false,
-  }) {
-    return SizedBox(
-      width: 220,
-      height: 38,
-      child: TextField(
-        controller: controle,
-        obscureText: campoSenha && !mostrarSenha,
-        decoration: InputDecoration(
-          hintText: titulo,
-          hintStyle: const TextStyle(fontSize: 13),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 8,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: GaspoCores.azul),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: GaspoCores.azul, width: 2),
-          ),
-        ),
+  // BOTÃO CRIAR CONTA
+  void cadastrar() {
+    if (!_formKey.currentState!.validate()) return;
+
+    // TODO: enviar para /api/pacientes/cadastro quando a API estiver disponível.
+    mostrarMensagem(context, 'Cadastro em desenvolvimento!');
+  }
+
+  String? _validarSenha(String? valor) {
+    if (valor == null || valor.isEmpty) return 'Crie uma senha.';
+    if (valor.length < CadastroTela.tamanhoMinimoSenha) {
+      return 'Use pelo menos ${CadastroTela.tamanhoMinimoSenha} caracteres.';
+    }
+    return null;
+  }
+
+  String? _validarConfirmacao(String? valor) {
+    if (valor == null || valor.isEmpty) return 'Repita a senha.';
+    return valor == senha.text ? null : 'As senhas não coincidem.';
+  }
+
+  Widget _secao(String titulo) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 14),
+      child: Text(
+        titulo,
+        style: const TextStyle(fontSize: 16, color: GaspoCores.azulTitulo, fontWeight: FontWeight.w600),
       ),
     );
   }
 
-  // BOTÃO CADASTRAR
-  void cadastrar() {
-    String mensagem;
-
-    if (nome.text.trim().isEmpty ||
-        nascimento.text.trim().isEmpty ||
-        cpf.text.trim().isEmpty ||
-        telefone.text.trim().isEmpty ||
-        senha.text.isEmpty ||
-        confirmarSenha.text.isEmpty) {
-      mensagem = 'Preencha todos os campos!';
-    } else if (senha.text != confirmarSenha.text) {
-      mensagem = 'As senhas não coincidem!';
-    } else {
-      // TODO: enviar o cadastro quando a API estiver disponível.
-      mensagem = 'Cadastro em desenvolvimento!';
-    }
-
-    mostrarMensagem(context, mensagem);
+  Widget _campoSenha(TextEditingController controller, String label, FormFieldValidator<String> validator,
+      {TextInputAction acao = TextInputAction.next}) {
+    return TextFormField(
+      controller: controller,
+      obscureText: !mostrarSenha,
+      textInputAction: acao,
+      onFieldSubmitted: acao == TextInputAction.done ? (_) => cadastrar() : null,
+      style: const TextStyle(fontSize: 16),
+      decoration: decoracaoCampo(label, Icons.lock_outline).copyWith(
+        suffixIcon: IconButton(
+          tooltip: mostrarSenha ? 'Ocultar senhas' : 'Mostrar senhas',
+          icon: Icon(
+            mostrarSenha ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+            color: GaspoCores.azulTitulo,
+          ),
+          onPressed: () => setState(() => mostrarSenha = !mostrarSenha),
+        ),
+      ),
+      validator: validator,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    const espaco = SizedBox(height: 16);
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 21),
-          child: Column(
-            children: [
-              const SizedBox(height: 18),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 440),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
 
-              // LOGO E SETA DE VOLTAR
-              const GaspoHeader(padding: EdgeInsets.zero),
+                    // LOGO E SETA DE VOLTAR
+                    const GaspoHeader(larguraLogo: 145, padding: EdgeInsets.zero),
 
-              const SizedBox(height: 65),
-
-              // FORMULÁRIO
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Preencha os dados abaixo para começar:',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: GaspoCores.azulEscuro,
-                        ),
-                      ),
-
-                      const SizedBox(height: 15),
-
-                      // CAMPOS CENTRALIZADOS
-                      criarCampo('Nome Completo:', nome),
-                      const SizedBox(height: 16),
-
-                      criarCampo(
-                        'Data de Nascimento:',
-                        nascimento,
-                      ),
-                      const SizedBox(height: 16),
-
-                      criarCampo('CPF:', cpf),
-                      const SizedBox(height: 16),
-
-                      criarCampo('Telefone:', telefone),
-                      const SizedBox(height: 16),
-
-                      criarCampo(
-                        'Criar Senha:',
-                        senha,
-                        campoSenha: true,
-                      ),
-                      const SizedBox(height: 16),
-
-                      criarCampo(
-                        'Confirmar Senha:',
-                        confirmarSenha,
-                        campoSenha: true,
-                      ),
-
-                      // MOSTRAR SENHAS
-                      SizedBox(
-                        width: 220,
-                        child: Row(
-                          children: [
-                            Checkbox(
-                              value: mostrarSenha,
-                              onChanged: (valor) {
-                                setState(() {
-                                  mostrarSenha = valor ?? false;
-                                });
-                              },
-                            ),
-                            const Text(
-                              'Mostrar senhas',
-                              style: TextStyle(fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // BOTÃO CADASTRAR
-              const SizedBox(height: 15),
-
-              SizedBox(
-                width: 166,
-                height: 36,
-                child: ElevatedButton(
-                  onPressed: cadastrar,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: GaspoCores.azul,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 32),
+                    const Text(
+                      'Criar conta',
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: GaspoCores.azulEscuro),
                     ),
-                  ),
-                  child: const Text(
-                    'Cadastrar',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ),
-              ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Com a conta você agenda consultas e acompanha os avisos da sua unidade.',
+                      style: TextStyle(fontSize: 15, color: Colors.black54, height: 1.4),
+                    ),
+                    const SizedBox(height: 24),
 
-              const SizedBox(height: 8),
+                    _secao('Seus dados'),
+                    TextFormField(
+                      controller: nome,
+                      textCapitalization: TextCapitalization.words,
+                      textInputAction: TextInputAction.next,
+                      autofillHints: const [AutofillHints.name],
+                      style: const TextStyle(fontSize: 16),
+                      decoration: decoracaoCampo('Nome completo', Icons.person_outline),
+                      validator: (v) => validarObrigatorio(v, 'Informe seu nome.'),
+                    ),
+                    espaco,
+                    TextFormField(
+                      controller: nascimento,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
+                      inputFormatters: [_mascaraData],
+                      style: const TextStyle(fontSize: 16),
+                      decoration: decoracaoCampo('Data de nascimento', Icons.cake_outlined)
+                          .copyWith(hintText: 'dd/mm/aaaa'),
+                      validator: validarDataNascimento,
+                    ),
+                    espaco,
+                    TextFormField(
+                      controller: cpf,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
+                      inputFormatters: [_mascaraCpf],
+                      style: const TextStyle(fontSize: 16),
+                      decoration: decoracaoCampo('CPF', Icons.badge_outlined)
+                          .copyWith(hintText: '000.000.000-00'),
+                      validator: validarCpf,
+                    ),
+                    espaco,
+                    TextFormField(
+                      controller: email,
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
+                      autofillHints: const [AutofillHints.email],
+                      style: const TextStyle(fontSize: 16),
+                      decoration: decoracaoCampo('E-mail', Icons.mail_outline),
+                      validator: validarEmail,
+                    ),
+                    espaco,
+                    TextFormField(
+                      controller: telefone,
+                      keyboardType: TextInputType.phone,
+                      textInputAction: TextInputAction.next,
+                      inputFormatters: [_mascaraTelefone],
+                      style: const TextStyle(fontSize: 16),
+                      decoration: decoracaoCampo('Telefone (opcional)', Icons.phone_outlined)
+                          .copyWith(hintText: '(00) 00000-0000'),
+                      validator: validarTelefone,
+                    ),
+                    const SizedBox(height: 24),
 
-              // FAZER LOGIN
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, Rotas.login);
-                },
-                child: const Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(text: 'Já possui uma conta? '),
-                      TextSpan(
-                        text: 'Fazer login',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                        ),
+                    _secao('Sua senha'),
+                    _campoSenha(senha, 'Senha', _validarSenha),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 12, top: 6),
+                      child: Text(
+                        'Pelo menos ${CadastroTela.tamanhoMinimoSenha} caracteres.',
+                        style: TextStyle(fontSize: 12, color: Colors.black54),
                       ),
-                    ],
-                  ),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: GaspoCores.azulEscuro,
-                  ),
+                    ),
+                    espaco,
+                    _campoSenha(confirmarSenha, 'Confirmar senha', _validarConfirmacao,
+                        acao: TextInputAction.done),
+                    const SizedBox(height: 28),
+
+                    // BOTÃO CRIAR CONTA
+                    BotaoPrincipal(texto: 'Criar conta', onPressed: cadastrar),
+                    const SizedBox(height: 16),
+
+                    // JÁ TEM CONTA
+                    Center(
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          const Text(
+                            'Já possui uma conta?',
+                            style: TextStyle(fontSize: 14, color: GaspoCores.azulEscuro),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pushReplacementNamed(context, Rotas.login),
+                            child: const Text(
+                              'Entrar',
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: GaspoCores.azul),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                 ),
               ),
-
-              const SizedBox(height: 18),
-            ],
+            ),
           ),
         ),
       ),

@@ -59,7 +59,11 @@ void main() {
 
     await tester.tap(find.text('Funcionário'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Login'));
+    expect(find.text('Acesso do funcionário'), findsOneWidget);
+    expect(find.text('Criar conta'), findsNothing);
+    await tester.enterText(find.widgetWithText(TextFormField, 'CPF'), '52998224725');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Senha'), 'segredo');
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Entrar'));
     await tester.pumpAndSettle();
     expect(find.text('Painel do Funcionário'), findsOneWidget);
 
