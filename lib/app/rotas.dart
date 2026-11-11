@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../modelos/aviso.dart';
 import '../modelos/perfil_acesso.dart';
 import '../modelos/profissional.dart';
+import '../telas/admin/avisos_publicados_tela.dart';
 import '../telas/admin/cadastro_horarios_tela.dart';
+import '../telas/admin/formulario_aviso_tela.dart';
 import '../telas/admin/formulario_medico_tela.dart';
 import '../telas/admin/medicos_tela.dart';
 import '../telas/admin/painel_funcionario_tela.dart';
 import '../telas/agendamento/agendamento_tela.dart';
 import '../telas/autenticacao/cadastro_tela.dart';
+import '../telas/avisos/avisos_tela.dart';
 import '../telas/autenticacao/entrada_tela.dart';
 import '../telas/autenticacao/login_tela.dart';
 import '../telas/autenticacao/splash_tela.dart';
@@ -23,7 +27,7 @@ import '../telas/unidade/localizacao_tela.dart';
 /// Rotas nomeadas de todo o aplicativo.
 ///
 /// Fluxo: Splash → Entrada → Login/Cadastro → Início → módulos.
-/// Funcionário: Entrada → Login → Painel (Médicos, Cadastro de Horários).
+/// Funcionário: Entrada → Login → Painel (Médicos, Cadastro de Horários, Avisos).
 class Rotas {
   Rotas._();
 
@@ -44,6 +48,7 @@ class Rotas {
   static const String avaliacaoProfissional = '/avaliacao-profissional';
   static const String localizacao = '/localizacao';
   static const String notificacoes = '/notificacoes';
+  static const String avisos = '/avisos';
   static const String perfil = '/perfil';
 
   /// Argumento opcional: [AgendamentoArgumentos].
@@ -56,6 +61,10 @@ class Rotas {
 
   /// Argumento opcional: [Profissional] a editar (sem argumento: cadastro).
   static const String formularioMedico = '/medico-formulario';
+  static const String avisosPublicados = '/avisos-publicados';
+
+  /// Argumento opcional: [Aviso] a atualizar (sem argumento: novo aviso).
+  static const String formularioAviso = '/aviso-formulario';
 
   static Route<dynamic> gerarRota(RouteSettings settings) {
     final Widget tela = switch (settings.name) {
@@ -80,6 +89,7 @@ class Rotas {
         },
       localizacao => const LocalizacaoTela(),
       notificacoes => const NotificacoesTela(),
+      avisos => const AvisosTela(),
       perfil => const PerfilTela(),
       agendamento => AgendamentoTela(
           profissionalInicial: (settings.arguments as AgendamentoArgumentos?)?.profissional,
@@ -88,6 +98,8 @@ class Rotas {
       painelFuncionario => const PainelFuncionarioTela(),
       cadastroHorarios => const CadastroHorariosTela(),
       medicos => const MedicosTela(),
+      avisosPublicados => const AvisosPublicadosTela(),
+      formularioAviso => FormularioAvisoTela(aviso: settings.arguments as Aviso?),
       formularioMedico => FormularioMedicoTela(
           profissional: settings.arguments as Profissional?,
         ),

@@ -83,6 +83,13 @@ class PainelFuncionarioTela extends StatelessWidget {
                     descricao: 'Gerar a grade de atendimento',
                     onTap: () => Navigator.pushNamed(context, Rotas.cadastroHorarios),
                   ),
+                  _opcao(
+                    context,
+                    icone: Icons.campaign_outlined,
+                    titulo: 'Avisos',
+                    descricao: 'Publicar e gerenciar comunicados',
+                    onTap: () => Navigator.pushNamed(context, Rotas.avisosPublicados),
+                  ),
                   const SizedBox(height: 12),
                   _opcao(
                     context,

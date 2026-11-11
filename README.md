@@ -99,8 +99,9 @@ A distribuição das atividades foi calibrada respeitando o domínio técnico ac
 
 ## Estrutura do app (após a integração das telas)
 
-As telas desenvolvidas separadamente (repositórios `Telas-Projeto-Integrador`
-e `GASPO`, e o projeto `gaspo` enviado em arquivo) foram unificadas aqui.
+As telas desenvolvidas separadamente (repositórios `Telas-Projeto-Integrador`,
+`GASPO` e `leticiavazx/gaspo_front`, e o projeto `gaspo` enviado em arquivo)
+foram unificadas aqui.
 
 ```
 lib/
@@ -115,7 +116,8 @@ lib/
 │   ├── agenda_service.dart    # /api/agendas: gerar grade, listar, atualizar, remover
 │   ├── consulta_service.dart  # /api/consultas: horários livres, agendar, ativas, histórico, cancelar
 │   ├── avaliacao_service.dart # /api/avaliacoes: avaliar e listar por profissional
-│   └── profissional_service.dart # /api/profissionais: listar, cadastrar, editar, status, remover
+│   ├── profissional_service.dart # /api/profissionais: listar, cadastrar, editar, status, remover
+│   └── aviso_service.dart     # /api/avisos: listar, publicar, editar, remover
 ├── utils/                     # SnackBars, formatação de data/hora e saída da conta
 ├── widgets/
 │   ├── gaspo_header.dart      # Seta de voltar + logo
@@ -131,7 +133,8 @@ lib/
     ├── notificacoes/          # Notificações                         (repo Telas-Projeto-Integrador)
     ├── perfil/                # Perfil                               (repo Telas-Projeto-Integrador)
     ├── agendamento/           # Agendamento de consultas (paciente)
-    └── admin/                 # Painel do funcionário: Médicos (cadastro) e Cadastro de Horários
+    ├── avisos/                # Feed de Avisos (paciente)               (repo leticiavazx/gaspo_front)
+    └── admin/                 # Painel do funcionário: Médicos, Cadastro de Horários e Avisos (Letícia)
 ```
 
 ### Navegação
@@ -139,7 +142,8 @@ lib/
 ```
 Splash → Entrada ─┬─ Usuário → Login → Início
                   ├─ Funcionário → Login → Painel ─┬─ Médicos → Cadastrar / editar médico
-                  │                                └─ Cadastro de Horários
+                  │                                ├─ Cadastro de Horários
+                  │                                └─ Avisos → Novo aviso / Atualizar
                   └─ Cadastrar-se → Cadastro ⇄ Login
 
 Início ─┬─ Especialistas → Perfil do profissional ─┬─ Agendar consulta (ou um horário livre)
@@ -147,7 +151,7 @@ Início ─┬─ Especialistas → Perfil do profissional ─┬─ Agendar con
         ├─ Avaliação → Avaliação do profissional → Início
         ├─ Localização
         ├─ Notificações (ícone do cabeçalho)
-        └─ Comunicados (em desenvolvimento)
+        └─ Comunicados (Feed de Avisos)
 
 Menu inferior: Início · Agendar · Histórico (em desenvolvimento) · Perfil
 ```

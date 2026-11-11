@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
 import '../../dados/dados_exemplo.dart';
-import '../../utils/mensagens.dart';
 import '../../widgets/gaspo_bottom_nav.dart';
 
 class HomeTela extends StatelessWidget {
@@ -120,8 +119,7 @@ class HomeTela extends StatelessWidget {
                       context,
                       title: 'Comunicados',
                       icon: Icons.forum_outlined,
-                      onTap: () =>
-                          mostrarEmDesenvolvimento(context, 'Comunicados'),
+                      onTap: () => Navigator.pushNamed(context, Rotas.avisos),
                     ),
                     _buildCategoryCard(
                       context,
