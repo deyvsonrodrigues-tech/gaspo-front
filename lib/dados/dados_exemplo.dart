@@ -1,4 +1,5 @@
 import '../modelos/profissional.dart';
+import '../modelos/unidade_saude.dart';
 import '../modelos/usuario.dart';
 
 // Dados fixos usados pelas telas enquanto não há integração com a API.
@@ -11,6 +12,13 @@ const Usuario usuarioLogado = Usuario(
   endereco: 'Rua das Acácias, nº 245 - Jardim Primavera',
 );
 
+/// Unidade de saúde (dados da tela de Localização).
+const UnidadeSaude unidadeSaude = UnidadeSaude(
+  endereco: 'Av. das Palmeiras, 458 - Jardim Esperança',
+  telefone: '(12) 3435-9821',
+  horarioFuncionamento: 'Seg. a Sex. — 07h às 18h',
+);
+
 const List<Profissional> profissionais = [
   Profissional(
     id: 1,
@@ -18,6 +26,7 @@ const List<Profissional> profissionais = [
     especialidade: 'Cardiologista',
     nota: 4.9,
     totalAvaliacoes: 37,
+    unidade: unidadeSaude,
     status: StatusProfissional.presente,
   ),
   Profissional(
@@ -26,6 +35,7 @@ const List<Profissional> profissionais = [
     especialidade: 'Dentista',
     nota: 4.9,
     totalAvaliacoes: 37,
+    unidade: unidadeSaude,
     status: StatusProfissional.ocupado,
   ),
   Profissional(
@@ -34,6 +44,7 @@ const List<Profissional> profissionais = [
     especialidade: 'Ortopedista',
     nota: 4.9,
     totalAvaliacoes: 37,
+    unidade: unidadeSaude,
     status: StatusProfissional.ausente,
   ),
   Profissional(
@@ -42,6 +53,7 @@ const List<Profissional> profissionais = [
     especialidade: 'Ginecologista e Pediatra',
     nota: 4.9,
     totalAvaliacoes: 37,
+    unidade: unidadeSaude,
     status: StatusProfissional.presente,
   ),
   Profissional(
@@ -50,6 +62,7 @@ const List<Profissional> profissionais = [
     especialidade: 'Ortopedista',
     nota: 4.9,
     totalAvaliacoes: 37,
+    unidade: unidadeSaude,
     status: StatusProfissional.ocupado,
   ),
   Profissional(
@@ -58,6 +71,7 @@ const List<Profissional> profissionais = [
     especialidade: 'Clínico Geral',
     nota: 4.9,
     totalAvaliacoes: 37,
+    unidade: unidadeSaude,
     status: StatusProfissional.presente,
   ),
 ];

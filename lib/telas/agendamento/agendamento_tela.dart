@@ -13,16 +13,34 @@ import '../../widgets/campos_formulario.dart';
 import '../../widgets/gaspo_bottom_nav.dart';
 import '../../widgets/gaspo_header.dart';
 
+/// Argumentos da rota [Rotas.agendamento].
+class AgendamentoArgumentos {
+  final Profissional profissional;
+
+  /// Horário já escolhido (ex.: tocado no Perfil do Profissional).
+  final HorarioAgenda? horario;
+
+  const AgendamentoArgumentos(this.profissional, {this.horario});
+}
+
 /// Agendamento de Consultas: o paciente escolhe o profissional, a data e um
 /// dos horários livres da agenda (cadastrada pelo funcionário).
 class AgendamentoTela extends StatefulWidget {
-  /// Profissional já escolhido (ex.: vindo da tela de Detalhes).
+  /// Profissional já escolhido (ex.: vindo do Perfil do Profissional).
   final Profissional? profissionalInicial;
+
+  /// Horário já escolhido; define a data e fica selecionado se ainda estiver livre.
+  final HorarioAgenda? horarioInicial;
 
   /// Permite injetar outra implementação (ex.: nos testes).
   final ConsultaService? service;
 
-  const AgendamentoTela({super.key, this.profissionalInicial, this.service});
+  const AgendamentoTela({
+    super.key,
+    this.profissionalInicial,
+    this.horarioInicial,
+    this.service,
+  });
 
   @override
   State<AgendamentoTela> createState() => _AgendamentoTelaState();
@@ -46,10 +64,15 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
   /// Evita que uma busca antiga sobrescreva a mais recente.
   int _buscaAtual = 0;
 
+  /// Horário vindo de outra tela, selecionado na primeira busca.
+  HorarioAgenda? _horarioPendente;
+
   @override
   void initState() {
     super.initState();
     _profissional = widget.profissionalInicial;
+    _horarioPendente = widget.horarioInicial;
+    if (_horarioPendente != null) _data = DateUtils.dateOnly(_horarioPendente!.data);
     if (_profissional != null) _carregarHorarios();
   }
 
@@ -75,7 +98,14 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
       if (!mounted || busca != _buscaAtual) return;
       // A API só aceita consultas futuras: esconde horários de hoje que já passaram.
       final agora = DateTime.now();
-      setState(() => _horarios = livres.where((h) => _dataHora(h).isAfter(agora)).toList());
+      setState(() {
+        _horarios = livres.where((h) => _dataHora(h).isAfter(agora)).toList();
+        final pendente = _horarioPendente;
+        _horarioPendente = null;
+        if (pendente != null) {
+          _horarioEscolhido = _horarios.where((h) => h.id == pendente.id).firstOrNull;
+        }
+      });
     } catch (_) {
       if (mounted) mostrarMensagem(context, 'Não foi possível carregar os horários.');
     } finally {

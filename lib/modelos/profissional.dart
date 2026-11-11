@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'unidade_saude.dart';
+
 enum StatusProfissional {
   presente('Presente', Colors.green),
   ocupado('Ocupado', Colors.orange),
@@ -18,6 +20,9 @@ class Profissional {
   final double nota;
   final int totalAvaliacoes;
   final StatusProfissional status;
+  final String? email;
+  final String? telefone;
+  final UnidadeSaude? unidade;
 
   const Profissional({
     required this.id,
@@ -26,6 +31,9 @@ class Profissional {
     required this.nota,
     required this.totalAvaliacoes,
     required this.status,
+    this.email,
+    this.telefone,
+    this.unidade,
   });
 
   String get notaFormatada => '$nota ($totalAvaliacoes Reviews)';

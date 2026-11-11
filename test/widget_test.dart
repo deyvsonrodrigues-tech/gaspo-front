@@ -73,7 +73,7 @@ void main() {
   });
 
   group('Módulos a partir do Início', () {
-    testWidgets('Especialistas → Detalhes do profissional', (tester) async {
+    testWidgets('Especialistas → Perfil do profissional', (tester) async {
       await _abrirNoInicio(tester);
 
       await tester.tap(find.text('Especialistas'));
@@ -84,7 +84,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('AUSENTE'), findsOneWidget);
 
-      await tester.tap(find.text('Voltar para a Lista'));
+      await tester.tap(find.byIcon(Icons.keyboard_double_arrow_left));
       await tester.pumpAndSettle();
       expect(find.text('Dra. Olivia Silva'), findsOneWidget);
     });

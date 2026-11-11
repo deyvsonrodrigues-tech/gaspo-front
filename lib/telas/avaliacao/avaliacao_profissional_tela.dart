@@ -3,16 +3,37 @@ import 'package:flutter/material.dart';
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
 import '../../dados/dados_exemplo.dart';
+import '../../servicos/avaliacao_service.dart';
 import '../../utils/mensagens.dart';
 import '../../widgets/avaliacao_widgets.dart';
 import '../../widgets/gaspo_bottom_nav.dart';
 import '../../widgets/gaspo_header.dart';
 
+/// Argumentos da rota [Rotas.avaliacaoProfissional] quando a tela deve
+/// voltar para quem a abriu (ex.: Perfil do Profissional) ao enviar.
+class AvaliacaoProfissionalArgumentos {
+  final String? medico;
+  final bool voltarAoEnviar;
+
+  const AvaliacaoProfissionalArgumentos({this.medico, this.voltarAoEnviar = false});
+}
+
 class AvaliacaoProfissionalTela extends StatefulWidget {
   // Parâmetro opcional para receber o médico selecionado na tela anterior
   final String? medicoPreSelecionado;
 
-  const AvaliacaoProfissionalTela({super.key, this.medicoPreSelecionado});
+  /// true: ao enviar, volta para a tela anterior em vez de ir para o Início.
+  final bool voltarAoEnviar;
+
+  /// Permite injetar outra implementação (ex.: nos testes).
+  final AvaliacaoService? service;
+
+  const AvaliacaoProfissionalTela({
+    super.key,
+    this.medicoPreSelecionado,
+    this.voltarAoEnviar = false,
+    this.service,
+  });
 
   @override
   State<AvaliacaoProfissionalTela> createState() => _AvaliacaoProfissionalTelaState();
@@ -24,6 +45,37 @@ class _AvaliacaoProfissionalTelaState extends State<AvaliacaoProfissionalTela> {
 
   String? _medicoSelecionado;
   final List<String> _medicosSistema = profissionais.map((p) => p.nome).toList();
+  bool _enviando = false;
+
+  Future<void> _enviar() async {
+    final profissional = profissionais.where((p) => p.nome == _medicoSelecionado).firstOrNull;
+    if (profissional == null) {
+      mostrarMensagem(context, 'Selecione o médico.');
+      return;
+    }
+
+    setState(() => _enviando = true);
+    try {
+      await (widget.service ?? AvaliacaoService.instancia).avaliar(
+        profissionalId: profissional.id,
+        nota: _estrelasSelecionadas,
+        comentario: _comentarioController.text,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _enviando = false);
+      mostrarMensagem(context, 'Não foi possível enviar a avaliação. Tente novamente.');
+      return;
+    }
+    if (!mounted) return;
+
+    mostrarMensagem(context, 'Avaliação enviada com sucesso!');
+    if (widget.voltarAoEnviar) {
+      Navigator.pop(context, true);
+    } else {
+      Navigator.pushNamedAndRemoveUntil(context, Rotas.home, (_) => false);
+    }
+  }
 
   @override
   void initState() {
@@ -125,10 +177,7 @@ class _AvaliacaoProfissionalTelaState extends State<AvaliacaoProfissionalTela> {
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
-                  onPressed: () {
-                    mostrarMensagem(context, 'Avaliação enviada com sucesso!');
-                    Navigator.pushNamedAndRemoveUntil(context, Rotas.home, (_) => false);
-                  },
+                  onPressed: _enviando ? null : _enviar,
                   child: const Text('Enviar Avaliação Final', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),

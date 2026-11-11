@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/tema.dart';
+import '../../dados/dados_exemplo.dart';
 import '../../widgets/gaspo_bottom_nav.dart';
 import '../../widgets/gaspo_header.dart';
 
@@ -95,19 +96,19 @@ class LocalizacaoTela extends StatelessWidget {
                     // ENDEREÇO
                     _linhaInformacao(
                       Icons.location_on_outlined,
-                      'Av. das Palmeiras, 458 - Jardim Esperança',
+                      unidadeSaude.endereco,
                       tamanhoIcone: 23,
                     ),
 
                     const SizedBox(height: 12),
 
                     // TELEFONE
-                    _linhaInformacao(Icons.phone_in_talk, '(12) 3435-9821'),
+                    _linhaInformacao(Icons.phone_in_talk, unidadeSaude.telefone ?? '-'),
 
                     const SizedBox(height: 12),
 
                     // HORÁRIO
-                    _linhaInformacao(Icons.access_time, 'Seg. a Sex. — 07h às 18h'),
+                    _linhaInformacao(Icons.access_time, unidadeSaude.horarioFuncionamento ?? '-'),
                   ],
                 ),
               ),

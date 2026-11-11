@@ -39,7 +39,7 @@ class EspecialistasTela extends StatelessWidget {
                     onTap: () {
                       Navigator.pushNamed(
                         context,
-                        Rotas.detalhesProfissional,
+                        Rotas.perfilProfissional,
                         arguments: profissional,
                       );
                     },

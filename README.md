@@ -109,11 +109,12 @@ lib/
 │   ├── localizacao.dart       # Idioma pt-BR (calendário, relógio, textos padrão)
 │   ├── rotas.dart             # Rotas nomeadas (Rotas.home, Rotas.perfil, ...)
 │   └── tema.dart              # GaspoCores (paleta única) + ThemeData
-├── modelos/                   # Usuario, Profissional, HorarioAgenda, Consulta, PerfilAcesso
+├── modelos/                   # Usuario, Profissional, UnidadeSaude, HorarioAgenda, Consulta, Avaliacao, PerfilAcesso
 ├── dados/dados_exemplo.dart   # Dados fixos até a integração com a API
 ├── servicos/                  # Acesso aos dados (hoje em memória; depois, a Gaspo-api)
 │   ├── agenda_service.dart    # /api/agendas: gerar grade, listar, atualizar, remover
-│   └── consulta_service.dart  # /api/consultas: horários livres, agendar, ativas, histórico, cancelar
+│   ├── consulta_service.dart  # /api/consultas: horários livres, agendar, ativas, histórico, cancelar
+│   └── avaliacao_service.dart # /api/avaliacoes: avaliar e listar por profissional
 ├── utils/                     # SnackBars padrão e formatação de data/hora
 ├── widgets/
 │   ├── gaspo_header.dart      # Seta de voltar + logo
@@ -123,7 +124,7 @@ lib/
 └── telas/
     ├── autenticacao/          # Splash, Entrada, Login, Cadastro     (projeto gaspo)
     ├── inicio/                # Início / categorias                  (repo GASPO)
-    ├── especialistas/         # Lista e detalhes do profissional     (repo GASPO)
+    ├── especialistas/         # Lista e Perfil do profissional       (repo GASPO)
     ├── avaliacao/             # Avaliação da consulta e profissional (repo GASPO)
     ├── unidade/               # Localização da unidade               (projeto gaspo)
     ├── notificacoes/          # Notificações                         (repo Telas-Projeto-Integrador)
@@ -139,7 +140,8 @@ Splash → Entrada ─┬─ Usuário → Login → Início
                   ├─ Funcionário → Login → Cadastro de Horários
                   └─ Cadastrar-se → Cadastro ⇄ Login
 
-Início ─┬─ Especialistas → Detalhes do profissional → Agendar consulta
+Início ─┬─ Especialistas → Perfil do profissional ─┬─ Agendar consulta (ou um horário livre)
+        │                                          └─ Avaliar profissional
         ├─ Avaliação → Avaliação do profissional → Início
         ├─ Localização
         ├─ Notificações (ícone do cabeçalho)
