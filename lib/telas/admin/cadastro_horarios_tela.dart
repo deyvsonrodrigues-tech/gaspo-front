@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../app/rotas.dart';
 import '../../app/tema.dart';
-import '../../dados/dados_exemplo.dart';
 import '../../modelos/agenda.dart';
 import '../../modelos/profissional.dart';
 import '../../servicos/agenda_service.dart';
+import '../../servicos/profissional_service.dart';
 import '../../utils/formatadores.dart';
 import '../../utils/mensagens.dart';
 import '../../widgets/campos_formulario.dart';
@@ -30,6 +29,7 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
   DateTime _data = DateUtils.dateOnly(DateTime.now());
   final List<TimeOfDay> _horariosNovos = [];
 
+  List<Profissional> _profissionais = [];
   List<HorarioAgenda> _cadastrados = [];
   bool _carregando = true;
   bool _salvando = false;
@@ -43,17 +43,21 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
   Future<void> _carregar() async {
     setState(() => _carregando = true);
     try {
-      final lista = await _service.listar();
-      if (mounted) setState(() => _cadastrados = lista);
+      final resultados = await Future.wait([
+        _service.listar(),
+        ProfissionalService.instancia.listar(),
+      ]);
+      if (!mounted) return;
+      setState(() {
+        _cadastrados = resultados[0] as List<HorarioAgenda>;
+        _profissionais = resultados[1] as List<Profissional>;
+        if (_profissional != null && !_profissionais.contains(_profissional)) _profissional = null;
+      });
     } catch (_) {
       if (mounted) mostrarMensagem(context, 'Não foi possível carregar os horários.');
     } finally {
       if (mounted) setState(() => _carregando = false);
     }
-  }
-
-  void _sair() {
-    Navigator.pushNamedAndRemoveUntil(context, Rotas.entrada, (_) => false);
   }
 
   Future<void> _adicionarHorario() async {
@@ -189,7 +193,7 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
           initialValue: _profissional,
           icon: const Icon(Icons.arrow_drop_down, color: GaspoCores.azulTitulo),
           decoration: decoracaoCampo('Profissional', Icons.person_outline),
-          items: profissionais.map((profissional) {
+          items: _profissionais.map((profissional) {
             return DropdownMenuItem<Profissional>(
               value: profissional,
               child: Text(
@@ -306,7 +310,7 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  GaspoHeader(onBack: _sair),
+                  const GaspoHeader(),
                   const SizedBox(height: 12),
                   const Text(
                     'Cadastro de Horários',

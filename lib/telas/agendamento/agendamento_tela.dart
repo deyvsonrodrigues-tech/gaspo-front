@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
-import '../../dados/dados_exemplo.dart';
 import '../../modelos/agenda.dart';
 import '../../modelos/consulta.dart';
 import '../../modelos/profissional.dart';
 import '../../servicos/consulta_service.dart';
+import '../../servicos/profissional_service.dart';
 import '../../utils/formatadores.dart';
 import '../../utils/mensagens.dart';
 import '../../widgets/campos_formulario.dart';
@@ -47,10 +47,14 @@ class AgendamentoTela extends StatefulWidget {
 }
 
 class _AgendamentoTelaState extends State<AgendamentoTela> {
-  late final ConsultaService _service = widget.service ?? ConsultaService.instancia;
+  late final ConsultaService _service =
+      widget.service ?? ConsultaService.instancia;
 
-  late final List<String> _especialidades =
-      profissionais.map((p) => p.especialidade).toSet().toList()..sort();
+  List<Profissional> _profissionais = [];
+  bool _carregandoProfissionais = true;
+
+  List<String> get _especialidades =>
+      _profissionais.map((p) => p.especialidade).toSet().toList()..sort();
 
   String? _especialidade;
   Profissional? _profissional;
@@ -72,13 +76,36 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
     super.initState();
     _profissional = widget.profissionalInicial;
     _horarioPendente = widget.horarioInicial;
-    if (_horarioPendente != null) _data = DateUtils.dateOnly(_horarioPendente!.data);
-    if (_profissional != null) _carregarHorarios();
+    if (_horarioPendente != null) {
+      _data = DateUtils.dateOnly(_horarioPendente!.data);
+    }
+    _carregarProfissionais();
+  }
+
+  Future<void> _carregarProfissionais() async {
+    try {
+      final lista = await ProfissionalService.instancia.listar();
+      if (!mounted) return;
+      setState(() {
+        _profissionais = lista;
+        // O profissional recebido pode ter sido removido nesse meio-tempo.
+        if (_profissional != null && !lista.contains(_profissional)) {
+          _profissional = null;
+        }
+      });
+      if (_profissional != null) _carregarHorarios();
+    } catch (_) {
+      if (mounted) {
+        mostrarMensagem(context, 'Não foi possível carregar os profissionais.');
+      }
+    } finally {
+      if (mounted) setState(() => _carregandoProfissionais = false);
+    }
   }
 
   List<Profissional> get _profissionaisFiltrados => _especialidade == null
-      ? profissionais
-      : profissionais.where((p) => p.especialidade == _especialidade).toList();
+      ? _profissionais
+      : _profissionais.where((p) => p.especialidade == _especialidade).toList();
 
   Future<void> _carregarHorarios() async {
     final profissional = _profissional;
@@ -103,23 +130,35 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
         final pendente = _horarioPendente;
         _horarioPendente = null;
         if (pendente != null) {
-          _horarioEscolhido = _horarios.where((h) => h.id == pendente.id).firstOrNull;
+          _horarioEscolhido = _horarios
+              .where((h) => h.id == pendente.id)
+              .firstOrNull;
         }
       });
     } catch (_) {
-      if (mounted) mostrarMensagem(context, 'Não foi possível carregar os horários.');
+      if (mounted) {
+        mostrarMensagem(context, 'Não foi possível carregar os horários.');
+      }
     } finally {
-      if (mounted && busca == _buscaAtual) setState(() => _carregandoHorarios = false);
+      if (mounted && busca == _buscaAtual) {
+        setState(() => _carregandoHorarios = false);
+      }
     }
   }
 
-  DateTime _dataHora(HorarioAgenda h) =>
-      DateTime(h.data.year, h.data.month, h.data.day, h.horario.hour, h.horario.minute);
+  DateTime _dataHora(HorarioAgenda h) => DateTime(
+    h.data.year,
+    h.data.month,
+    h.data.day,
+    h.horario.hour,
+    h.horario.minute,
+  );
 
   void _escolherEspecialidade(String? especialidade) {
     setState(() {
       _especialidade = especialidade;
-      if (_profissional != null && !_profissionaisFiltrados.contains(_profissional)) {
+      if (_profissional != null &&
+          !_profissionaisFiltrados.contains(_profissional)) {
         _profissional = null;
       }
     });
@@ -171,12 +210,19 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
           children: [
             _linhaResumo(Icons.person_outline, consulta.nomeProfissional),
             if (consulta.especialidadeProfissional != null)
-              _linhaResumo(Icons.medical_services_outlined, consulta.especialidadeProfissional!),
+              _linhaResumo(
+                Icons.medical_services_outlined,
+                consulta.especialidadeProfissional!,
+              ),
             _linhaResumo(
               Icons.event,
-              MaterialLocalizations.of(context).formatFullDate(consulta.dataHora),
+              MaterialLocalizations.of(context)
+                  .formatFullDate(consulta.dataHora),
             ),
-            _linhaResumo(Icons.access_time, formatarHora(TimeOfDay.fromDateTime(consulta.dataHora))),
+            _linhaResumo(
+              Icons.access_time,
+              formatarHora(TimeOfDay.fromDateTime(consulta.dataHora)),
+            ),
           ],
         ),
         actions: [
@@ -205,7 +251,11 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
   Widget _subtitulo(String texto) {
     return Text(
       texto,
-      style: const TextStyle(fontSize: 15, color: GaspoCores.azulTitulo, fontWeight: FontWeight.w600),
+      style: const TextStyle(
+        fontSize: 15,
+        color: GaspoCores.azulTitulo,
+        fontWeight: FontWeight.w600,
+      ),
     );
   }
 
@@ -241,7 +291,9 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
             backgroundColor: Colors.white,
             side: const BorderSide(color: GaspoCores.azul),
             labelStyle: TextStyle(
-              color: _horarioEscolhido?.id == horario.id ? Colors.white : GaspoCores.azul,
+              color: _horarioEscolhido?.id == horario.id
+                  ? Colors.white
+                  : GaspoCores.azul,
               fontWeight: FontWeight.w600,
             ),
             onSelected: (_) => setState(() => _horarioEscolhido = horario),
@@ -269,53 +321,82 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
                   const SizedBox(height: 12),
                   const Text(
                     'Agendar Consulta',
-                    style: TextStyle(fontSize: 19, color: GaspoCores.azulTitulo, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 19,
+                      color: GaspoCores.azulTitulo,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 18),
 
-                  DropdownButtonFormField<String?>(
-                    isExpanded: true,
-                    initialValue: _especialidade,
-                    icon: const Icon(Icons.arrow_drop_down, color: GaspoCores.azulTitulo),
-                    decoration: decoracaoCampo('Especialidade', Icons.medical_services_outlined),
-                    items: [
-                      const DropdownMenuItem<String?>(
-                        value: null,
-                        child: Text('Todas', style: TextStyle(fontSize: 14)),
+                  // Os campos só são montados depois de carregar, para já virem preenchidos.
+                  if (_carregandoProfissionais)
+                    const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else ...[
+                    DropdownButtonFormField<String?>(
+                      isExpanded: true,
+                      initialValue: _especialidade,
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: GaspoCores.azulTitulo,
                       ),
-                      for (final especialidade in _especialidades)
-                        DropdownMenuItem<String?>(
-                          value: especialidade,
-                          child: Text(especialidade, style: const TextStyle(fontSize: 14)),
+                      decoration: decoracaoCampo(
+                        'Especialidade',
+                        Icons.medical_services_outlined,
+                      ),
+                      items: [
+                        const DropdownMenuItem<String?>(
+                          value: null,
+                          child: Text('Todas', style: TextStyle(fontSize: 14)),
                         ),
-                    ],
-                    onChanged: _escolherEspecialidade,
-                  ),
-                  const SizedBox(height: 16),
-
-                  DropdownButtonFormField<Profissional>(
-                    // Recria o campo quando o filtro muda a lista de opções.
-                    key: ValueKey('profissional-$_especialidade'),
-                    isExpanded: true,
-                    initialValue: _profissional,
-                    icon: const Icon(Icons.arrow_drop_down, color: GaspoCores.azulTitulo),
-                    decoration: decoracaoCampo('Profissional', Icons.person_outline),
-                    items: [
-                      for (final p in _profissionaisFiltrados)
-                        DropdownMenuItem<Profissional>(
-                          value: p,
-                          child: Text(
-                            _especialidade == null ? '${p.nome} — ${p.especialidade}' : p.nome,
-                            style: const TextStyle(fontSize: 14),
-                            overflow: TextOverflow.ellipsis,
+                        for (final especialidade in _especialidades)
+                          DropdownMenuItem<String?>(
+                            value: especialidade,
+                            child: Text(
+                              especialidade,
+                              style: const TextStyle(fontSize: 14),
+                            ),
                           ),
-                        ),
-                    ],
-                    onChanged: (p) {
-                      setState(() => _profissional = p);
-                      _carregarHorarios();
-                    },
-                  ),
+                      ],
+                      onChanged: _escolherEspecialidade,
+                    ),
+                    const SizedBox(height: 16),
+
+                    DropdownButtonFormField<Profissional>(
+                      // Recria o campo quando o filtro muda a lista de opções.
+                      key: ValueKey('profissional-$_especialidade'),
+                      isExpanded: true,
+                      initialValue: _profissional,
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: GaspoCores.azulTitulo,
+                      ),
+                      decoration: decoracaoCampo(
+                        'Profissional',
+                        Icons.person_outline,
+                      ),
+                      items: [
+                        for (final p in _profissionaisFiltrados)
+                          DropdownMenuItem<Profissional>(
+                            value: p,
+                            child: Text(
+                              _especialidade == null
+                                  ? '${p.nome} — ${p.especialidade}'
+                                  : p.nome,
+                              style: const TextStyle(fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                      ],
+                      onChanged: (p) {
+                        setState(() => _profissional = p);
+                        _carregarHorarios();
+                      },
+                    ),
+                  ],
                   const SizedBox(height: 16),
 
                   CampoData(
@@ -326,7 +407,11 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
                     },
                   ),
 
-                  const Divider(color: Colors.black26, thickness: 0.8, height: 40),
+                  const Divider(
+                    color: Colors.black26,
+                    thickness: 0.8,
+                    height: 40,
+                  ),
                   _subtitulo('Horários disponíveis'),
                   const SizedBox(height: 12),
                   _buildHorarios(),
@@ -346,9 +431,19 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
                         children: [
                           _subtitulo('Resumo'),
                           const SizedBox(height: 6),
-                          _linhaResumo(Icons.person_outline, '${profissional.nome} — ${profissional.especialidade}'),
-                          _linhaResumo(Icons.event, MaterialLocalizations.of(context).formatFullDate(_data)),
-                          _linhaResumo(Icons.access_time, formatarHora(horario.horario)),
+                          _linhaResumo(
+                            Icons.person_outline,
+                            '${profissional.nome} — ${profissional.especialidade}',
+                          ),
+                          _linhaResumo(
+                            Icons.event,
+                            MaterialLocalizations.of(context)
+                                .formatFullDate(_data),
+                          ),
+                          _linhaResumo(
+                            Icons.access_time,
+                            formatarHora(horario.horario),
+                          ),
                         ],
                       ),
                     ),
@@ -367,7 +462,9 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
           ),
         ),
       ),
-      bottomNavigationBar: const GaspoBottomNav(currentIndex: GaspoBottomNav.agendar),
+      bottomNavigationBar: const GaspoBottomNav(
+        currentIndex: GaspoBottomNav.agendar,
+      ),
     );
   }
 }

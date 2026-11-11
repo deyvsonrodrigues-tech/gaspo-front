@@ -4,6 +4,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
 import '../../dados/dados_exemplo.dart';
+import '../../servicos/profissional_service.dart';
 import '../../widgets/avaliacao_widgets.dart';
 import '../../widgets/gaspo_bottom_nav.dart';
 import '../../widgets/gaspo_header.dart';
@@ -40,7 +41,15 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
   String? _especialidadeSelecionada;
 
   String? _profissionalSelecionado;
-  final List<String> _medicosSistema = profissionais.map((p) => p.nome).toList();
+  List<String> _medicosSistema = [];
+
+  @override
+  void initState() {
+    super.initState();
+    ProfissionalService.instancia.listar().then((lista) {
+      if (mounted) setState(() => _medicosSistema = lista.map((p) => p.nome).toList());
+    }).catchError((_) {});
+  }
 
   @override
   void dispose() {

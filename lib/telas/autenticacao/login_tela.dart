@@ -30,9 +30,9 @@ class _LoginTelaState extends State<LoginTela> {
 
   void entrar() {
     // TODO: autenticar CPF e senha quando a API estiver disponível.
-    // Funcionário vai para o painel admin (por enquanto, só o Cadastro de Horários).
+    // Funcionário vai para o Painel Admin; paciente, para o Início.
     final destino = widget.perfil == PerfilAcesso.funcionario
-        ? Rotas.cadastroHorarios
+        ? Rotas.painelFuncionario
         : Rotas.home;
     Navigator.pushNamedAndRemoveUntil(context, destino, (_) => false);
   }

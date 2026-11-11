@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../dados/dados_exemplo.dart';
 import '../modelos/agenda.dart';
 import '../modelos/consulta.dart';
 import 'agenda_service.dart';
+import 'profissional_service.dart';
 
 /// Erro de regra de negócio, com a mesma mensagem que a API devolve.
 class AgendamentoException implements Exception {
@@ -70,7 +70,7 @@ class ConsultaServiceLocal implements ConsultaService {
     if (!dataHora.isAfter(_agora())) {
       throw const AgendamentoException('A consulta deve ser agendada para uma data futura');
     }
-    final profissional = profissionais.where((p) => p.id == profissionalId).firstOrNull;
+    final profissional = await ProfissionalService.instancia.buscarPorId(profissionalId);
     if (profissional == null) {
       throw const AgendamentoException('Profissional não encontrado');
     }

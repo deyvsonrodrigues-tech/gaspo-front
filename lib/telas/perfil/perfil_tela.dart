@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../app/rotas.dart';
 import '../../app/tema.dart';
 import '../../dados/dados_exemplo.dart';
+import '../../utils/sessao.dart';
 import '../../widgets/gaspo_bottom_nav.dart';
 
 class PerfilTela extends StatelessWidget {
@@ -56,34 +56,6 @@ class PerfilTela extends StatelessWidget {
     );
   }
 
-  Future<void> _sair(BuildContext context) async {
-    final confirmado = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Sair da conta?'),
-        content: const Text('Você precisará entrar novamente para acessar o aplicativo.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Sair'),
-          ),
-        ],
-      ),
-    );
-    if (confirmado != true || !context.mounted) return;
-
-    // TODO: apagar o token salvo quando o login usar a API.
-    // Entrada fica por baixo para a seta de voltar do Login funcionar.
-    final navigator = Navigator.of(context);
-    navigator.pushNamedAndRemoveUntil(Rotas.entrada, (_) => false);
-    navigator.pushNamed(Rotas.login);
-  }
-
   Widget _criarItemSair(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
@@ -91,7 +63,7 @@ class PerfilTela extends StatelessWidget {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
-        onTap: () => _sair(context),
+        onTap: () => sairDaConta(context),
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(

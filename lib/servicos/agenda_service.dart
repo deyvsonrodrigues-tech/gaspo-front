@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../dados/dados_exemplo.dart';
 import '../modelos/agenda.dart';
+import 'profissional_service.dart';
 
 /// Agenda de atendimento dos profissionais (RF013).
 ///
@@ -53,7 +54,7 @@ class AgendaServiceLocal implements AgendaService {
       if (dia.weekday == DateTime.saturday || dia.weekday == DateTime.sunday) continue;
       diasUteis++;
       for (final profissional in profissionais) {
-        service._adicionarGrade(profissional.id, dia, horarios);
+        service._adicionarGrade(profissional.id, profissional.nome, dia, horarios);
       }
     }
     return service;
@@ -75,22 +76,20 @@ class AgendaServiceLocal implements AgendaService {
     required DateTime data,
     required List<TimeOfDay> horarios,
   }) async {
-    _adicionarGrade(profissionalId, data, horarios);
+    final profissional = await ProfissionalService.instancia.buscarPorId(profissionalId);
+    if (profissional == null) throw ArgumentError('Profissional não encontrado');
+    _adicionarGrade(profissional.id, profissional.nome, data, horarios);
   }
 
-  void _adicionarGrade(int profissionalId, DateTime data, List<TimeOfDay> horarios) {
-    final profissional = profissionais.firstWhere(
-      (p) => p.id == profissionalId,
-      orElse: () => throw ArgumentError('Profissional não encontrado'),
-    );
+  void _adicionarGrade(int profissionalId, String nome, DateTime data, List<TimeOfDay> horarios) {
     for (final hora in horarios) {
       _horarios.add(HorarioAgenda(
         id: _proximoId++,
         data: DateUtils.dateOnly(data),
         horario: hora,
         disponibilidade: Disponibilidade.disponivel,
-        profissionalId: profissional.id,
-        nomeProfissional: profissional.nome,
+        profissionalId: profissionalId,
+        nomeProfissional: nome,
       ));
     }
   }

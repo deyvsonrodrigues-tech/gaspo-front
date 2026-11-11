@@ -114,8 +114,9 @@ lib/
 ├── servicos/                  # Acesso aos dados (hoje em memória; depois, a Gaspo-api)
 │   ├── agenda_service.dart    # /api/agendas: gerar grade, listar, atualizar, remover
 │   ├── consulta_service.dart  # /api/consultas: horários livres, agendar, ativas, histórico, cancelar
-│   └── avaliacao_service.dart # /api/avaliacoes: avaliar e listar por profissional
-├── utils/                     # SnackBars padrão e formatação de data/hora
+│   ├── avaliacao_service.dart # /api/avaliacoes: avaliar e listar por profissional
+│   └── profissional_service.dart # /api/profissionais: listar, cadastrar, editar, status, remover
+├── utils/                     # SnackBars, formatação de data/hora e saída da conta
 ├── widgets/
 │   ├── gaspo_header.dart      # Seta de voltar + logo
 │   ├── gaspo_bottom_nav.dart  # Menu inferior único
@@ -130,14 +131,15 @@ lib/
     ├── notificacoes/          # Notificações                         (repo Telas-Projeto-Integrador)
     ├── perfil/                # Perfil                               (repo Telas-Projeto-Integrador)
     ├── agendamento/           # Agendamento de consultas (paciente)
-    └── admin/                 # Cadastro de Horários (painel do funcionário)
+    └── admin/                 # Painel do funcionário: Médicos (cadastro) e Cadastro de Horários
 ```
 
 ### Navegação
 
 ```
 Splash → Entrada ─┬─ Usuário → Login → Início
-                  ├─ Funcionário → Login → Cadastro de Horários
+                  ├─ Funcionário → Login → Painel ─┬─ Médicos → Cadastrar / editar médico
+                  │                                └─ Cadastro de Horários
                   └─ Cadastrar-se → Cadastro ⇄ Login
 
 Início ─┬─ Especialistas → Perfil do profissional ─┬─ Agendar consulta (ou um horário livre)

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../modelos/perfil_acesso.dart';
 import '../modelos/profissional.dart';
 import '../telas/admin/cadastro_horarios_tela.dart';
+import '../telas/admin/formulario_medico_tela.dart';
+import '../telas/admin/medicos_tela.dart';
+import '../telas/admin/painel_funcionario_tela.dart';
 import '../telas/agendamento/agendamento_tela.dart';
 import '../telas/autenticacao/cadastro_tela.dart';
 import '../telas/autenticacao/entrada_tela.dart';
@@ -20,7 +23,7 @@ import '../telas/unidade/localizacao_tela.dart';
 /// Rotas nomeadas de todo o aplicativo.
 ///
 /// Fluxo: Splash → Entrada → Login/Cadastro → Início → módulos.
-/// Funcionário: Entrada → Login → Cadastro de Horários.
+/// Funcionário: Entrada → Login → Painel (Médicos, Cadastro de Horários).
 class Rotas {
   Rotas._();
 
@@ -47,7 +50,12 @@ class Rotas {
   static const String agendamento = '/agendamento';
 
   // Painel Admin (funcionário)
+  static const String painelFuncionario = '/painel-funcionario';
   static const String cadastroHorarios = '/cadastro-horarios';
+  static const String medicos = '/medicos';
+
+  /// Argumento opcional: [Profissional] a editar (sem argumento: cadastro).
+  static const String formularioMedico = '/medico-formulario';
 
   static Route<dynamic> gerarRota(RouteSettings settings) {
     final Widget tela = switch (settings.name) {
@@ -77,7 +85,12 @@ class Rotas {
           profissionalInicial: (settings.arguments as AgendamentoArgumentos?)?.profissional,
           horarioInicial: (settings.arguments as AgendamentoArgumentos?)?.horario,
         ),
+      painelFuncionario => const PainelFuncionarioTela(),
       cadastroHorarios => const CadastroHorariosTela(),
+      medicos => const MedicosTela(),
+      formularioMedico => FormularioMedicoTela(
+          profissional: settings.arguments as Profissional?,
+        ),
       _ => const SplashTela(),
     };
 

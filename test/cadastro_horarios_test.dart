@@ -51,7 +51,7 @@ Future<void> _gerarGrade(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('Funcionário entra direto no Cadastro de Horários', (tester) async {
+  testWidgets('Funcionário entra no painel e abre o Cadastro de Horários', (tester) async {
     _usarTelaCelular(tester);
     await tester.pumpWidget(const GaspoApp());
     await tester.pump(SplashTela.duracao);
@@ -61,8 +61,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Login'));
     await tester.pumpAndSettle();
+    expect(find.text('Painel do Funcionário'), findsOneWidget);
 
-    expect(find.text('Cadastro de Horários'), findsOneWidget);
+    await tester.tap(find.text('Cadastro de Horários'));
+    await tester.pumpAndSettle();
+    expect(find.text('Gere a grade de atendimento de um profissional.'), findsOneWidget);
   });
 
   testWidgets('Gera a grade e não duplica horários do mesmo dia', (tester) async {
