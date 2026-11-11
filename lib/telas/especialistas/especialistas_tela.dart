@@ -26,18 +26,18 @@ class _EspecialistasTelaState extends State<EspecialistasTela> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const GaspoHeader(),
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: Text(
                 'Especialistas',
                 style: TextStyle(
                   fontSize: 20,
-                  color: GaspoCores.azulTitulo,
+                  color: context.cores.titulo,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
-            const Divider(height: 1, color: Colors.black12),
+            Divider(height: 1, color: context.cores.borda),
             Expanded(
               child: FutureBuilder<List<Profissional>>(
                 future: _profissionais,
@@ -61,17 +61,17 @@ class _EspecialistasTelaState extends State<EspecialistasTela> {
                   }
                   final profissionais = snapshot.data!;
                   if (profissionais.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Text(
                         'Nenhum especialista cadastrado.',
-                        style: TextStyle(color: Colors.black54),
+                        style: TextStyle(color: context.cores.textoSecundario),
                       ),
                     );
                   }
                   return ListView.separated(
                     itemCount: profissionais.length,
                     separatorBuilder: (_, _) =>
-                        const Divider(height: 1, color: Colors.black12),
+                        Divider(height: 1, color: context.cores.borda),
                     itemBuilder: (context, index) {
                       final profissional = profissionais[index];
                       return InkWell(
@@ -105,18 +105,18 @@ class _EspecialistasTelaState extends State<EspecialistasTela> {
                                   children: [
                                     Text(
                                       profissional.nome,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
+                                        color: context.cores.texto,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
                                       profissional.especialidade,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 13,
-                                        color: Colors.black54,
+                                        color: context.cores.textoSecundario,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -131,9 +131,9 @@ class _EspecialistasTelaState extends State<EspecialistasTela> {
                                         const SizedBox(width: 4),
                                         Text(
                                           profissional.notaFormatada,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 12,
-                                            color: Colors.grey,
+                                            color: context.cores.textoFraco,
                                           ),
                                         ),
                                       ],

@@ -73,7 +73,7 @@ class _CadastroTelaState extends State<CadastroTela> {
       padding: const EdgeInsets.only(top: 8, bottom: 14),
       child: Text(
         titulo,
-        style: const TextStyle(fontSize: 16, color: GaspoCores.azulTitulo, fontWeight: FontWeight.w600),
+        style: TextStyle(fontSize: 16, color: context.cores.titulo, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -86,12 +86,12 @@ class _CadastroTelaState extends State<CadastroTela> {
       textInputAction: acao,
       onFieldSubmitted: acao == TextInputAction.done ? (_) => cadastrar() : null,
       style: const TextStyle(fontSize: 16),
-      decoration: decoracaoCampo(label, Icons.lock_outline).copyWith(
+      decoration: decoracaoCampo(context, label, Icons.lock_outline).copyWith(
         suffixIcon: IconButton(
           tooltip: mostrarSenha ? 'Ocultar senhas' : 'Mostrar senhas',
           icon: Icon(
             mostrarSenha ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-            color: GaspoCores.azulTitulo,
+            color: context.cores.titulo,
           ),
           onPressed: () => setState(() => mostrarSenha = !mostrarSenha),
         ),
@@ -123,14 +123,14 @@ class _CadastroTelaState extends State<CadastroTela> {
                     const GaspoHeader(larguraLogo: 145, padding: EdgeInsets.zero),
 
                     const SizedBox(height: 32),
-                    const Text(
+                    Text(
                       'Criar conta',
-                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: GaspoCores.azulEscuro),
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: context.cores.tituloForte),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
+                    Text(
                       'Com a conta você agenda consultas e acompanha os avisos da sua unidade.',
-                      style: TextStyle(fontSize: 15, color: Colors.black54, height: 1.4),
+                      style: TextStyle(fontSize: 15, color: context.cores.textoSecundario, height: 1.4),
                     ),
                     const SizedBox(height: 24),
 
@@ -141,7 +141,7 @@ class _CadastroTelaState extends State<CadastroTela> {
                       textInputAction: TextInputAction.next,
                       autofillHints: const [AutofillHints.name],
                       style: const TextStyle(fontSize: 16),
-                      decoration: decoracaoCampo('Nome completo', Icons.person_outline),
+                      decoration: decoracaoCampo(context, 'Nome completo', Icons.person_outline),
                       validator: (v) => validarObrigatorio(v, 'Informe seu nome.'),
                     ),
                     espaco,
@@ -151,7 +151,7 @@ class _CadastroTelaState extends State<CadastroTela> {
                       textInputAction: TextInputAction.next,
                       inputFormatters: [_mascaraData],
                       style: const TextStyle(fontSize: 16),
-                      decoration: decoracaoCampo('Data de nascimento', Icons.cake_outlined)
+                      decoration: decoracaoCampo(context, 'Data de nascimento', Icons.cake_outlined)
                           .copyWith(hintText: 'dd/mm/aaaa'),
                       validator: validarDataNascimento,
                     ),
@@ -162,7 +162,7 @@ class _CadastroTelaState extends State<CadastroTela> {
                       textInputAction: TextInputAction.next,
                       inputFormatters: [_mascaraCpf],
                       style: const TextStyle(fontSize: 16),
-                      decoration: decoracaoCampo('CPF', Icons.badge_outlined)
+                      decoration: decoracaoCampo(context, 'CPF', Icons.badge_outlined)
                           .copyWith(hintText: '000.000.000-00'),
                       validator: validarCpf,
                     ),
@@ -173,7 +173,7 @@ class _CadastroTelaState extends State<CadastroTela> {
                       textInputAction: TextInputAction.next,
                       autofillHints: const [AutofillHints.email],
                       style: const TextStyle(fontSize: 16),
-                      decoration: decoracaoCampo('E-mail', Icons.mail_outline),
+                      decoration: decoracaoCampo(context, 'E-mail', Icons.mail_outline),
                       validator: validarEmail,
                     ),
                     espaco,
@@ -183,7 +183,7 @@ class _CadastroTelaState extends State<CadastroTela> {
                       textInputAction: TextInputAction.next,
                       inputFormatters: [_mascaraTelefone],
                       style: const TextStyle(fontSize: 16),
-                      decoration: decoracaoCampo('Telefone (opcional)', Icons.phone_outlined)
+                      decoration: decoracaoCampo(context, 'Telefone (opcional)', Icons.phone_outlined)
                           .copyWith(hintText: '(00) 00000-0000'),
                       validator: validarTelefone,
                     ),
@@ -191,11 +191,11 @@ class _CadastroTelaState extends State<CadastroTela> {
 
                     _secao('Sua senha'),
                     _campoSenha(senha, 'Senha', _validarSenha),
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(left: 12, top: 6),
                       child: Text(
                         'Pelo menos ${CadastroTela.tamanhoMinimoSenha} caracteres.',
-                        style: TextStyle(fontSize: 12, color: Colors.black54),
+                        style: TextStyle(fontSize: 12, color: context.cores.textoSecundario),
                       ),
                     ),
                     espaco,
@@ -213,15 +213,15 @@ class _CadastroTelaState extends State<CadastroTela> {
                         alignment: WrapAlignment.center,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          const Text(
+                          Text(
                             'Já possui uma conta?',
-                            style: TextStyle(fontSize: 14, color: GaspoCores.azulEscuro),
+                            style: TextStyle(fontSize: 14, color: context.cores.tituloForte),
                           ),
                           TextButton(
                             onPressed: () => Navigator.pushReplacementNamed(context, Rotas.login),
-                            child: const Text(
+                            child: Text(
                               'Entrar',
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: GaspoCores.azul),
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: context.cores.destaque),
                             ),
                           ),
                         ],

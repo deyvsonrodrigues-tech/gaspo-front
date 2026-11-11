@@ -9,12 +9,12 @@ import '../../widgets/gaspo_header.dart';
 class LocalizacaoTela extends StatelessWidget {
   const LocalizacaoTela({super.key});
 
-  Widget _linhaInformacao(IconData icone, String texto, {double tamanhoIcone = 22}) {
+  Widget _linhaInformacao(BuildContext context, IconData icone, String texto, {double tamanhoIcone = 22}) {
     return Row(
       children: [
         Icon(
           icone,
-          color: GaspoCores.azul,
+          color: context.cores.destaque,
           size: tamanhoIcone,
         ),
         const SizedBox(width: 8),
@@ -47,13 +47,13 @@ class LocalizacaoTela extends StatelessWidget {
                     const SizedBox(height: 60),
 
                     // TÍTULO
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Dados da Unidade de Saúde',
                         style: TextStyle(
                           fontSize: 16,
-                          color: GaspoCores.azulEscuro,
+                          color: context.cores.tituloForte,
                         ),
                       ),
                     ),
@@ -82,10 +82,10 @@ class LocalizacaoTela extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       '••••',
                       style: TextStyle(
-                        color: GaspoCores.azul,
+                        color: context.cores.destaque,
                         fontSize: 22,
                         letterSpacing: 3,
                       ),
@@ -94,7 +94,7 @@ class LocalizacaoTela extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // ENDEREÇO
-                    _linhaInformacao(
+                    _linhaInformacao(context, 
                       Icons.location_on_outlined,
                       unidadeSaude.endereco,
                       tamanhoIcone: 23,
@@ -103,12 +103,12 @@ class LocalizacaoTela extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // TELEFONE
-                    _linhaInformacao(Icons.phone_in_talk, unidadeSaude.telefone ?? '-'),
+                    _linhaInformacao(context, Icons.phone_in_talk, unidadeSaude.telefone ?? '-'),
 
                     const SizedBox(height: 12),
 
                     // HORÁRIO
-                    _linhaInformacao(Icons.access_time, unidadeSaude.horarioFuncionamento ?? '-'),
+                    _linhaInformacao(context, Icons.access_time, unidadeSaude.horarioFuncionamento ?? '-'),
                   ],
                 ),
               ),

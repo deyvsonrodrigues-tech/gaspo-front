@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../app/tema.dart';
+
 /// Cabeçalho padrão: seta de voltar + logo horizontal do GASPO.
 ///
 /// Usa o logo oficial (assets/logo_gaspo_horizontal.png) no lugar do logo
@@ -30,18 +32,18 @@ class GaspoHeader extends StatelessWidget {
           InkWell(
             onTap: onBack ?? () => Navigator.maybePop(context),
             borderRadius: BorderRadius.circular(20),
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.all(4.0),
               child: Icon(
                 Icons.keyboard_double_arrow_left,
                 size: 30,
-                color: Colors.black87,
+                color: context.cores.texto,
               ),
             ),
           ),
           const SizedBox(width: 8),
           Image.asset(
-            'assets/logo_gaspo_horizontal.png',
+            context.temaEscuro ? 'assets/logo_gaspo_horizontal_escuro.png' : 'assets/logo_gaspo_horizontal.png',
             width: larguraLogo,
             fit: BoxFit.contain,
           ),

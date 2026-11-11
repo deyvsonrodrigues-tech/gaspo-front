@@ -76,7 +76,7 @@ class _FormularioAvisoTelaState extends State<FormularioAvisoTela> {
   InputDecoration _decoracao(String hint) => InputDecoration(
     hintText: hint,
     filled: true,
-    fillColor: Colors.white,
+    fillColor: context.cores.superficie,
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
   );
@@ -95,17 +95,17 @@ class _FormularioAvisoTelaState extends State<FormularioAvisoTela> {
                 children: [
                   const GaspoHeader(),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Avisos',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: GaspoCores.azulEscuro,
+                      color: context.cores.tituloForte,
                     ),
                   ),
-                  const Text(
+                  Text(
                     'Publique comunicados e acompanhe-os',
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                    style: TextStyle(color: context.cores.textoFraco, fontSize: 14),
                   ),
                   const SizedBox(height: 20),
                   // Sombra do layout original; o fundo branco fica num Material
@@ -122,7 +122,7 @@ class _FormularioAvisoTelaState extends State<FormularioAvisoTela> {
                       ],
                     ),
                     child: Material(
-                      color: Colors.white,
+                      color: context.cores.superficie,
                       borderRadius: BorderRadius.circular(16),
                       child: Padding(
                         padding: const EdgeInsets.all(20),

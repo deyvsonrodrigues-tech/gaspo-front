@@ -100,12 +100,12 @@ class _FormularioMedicoTelaState extends State<FormularioMedicoTela> {
                     const SizedBox(height: 12),
                     Text(
                       _editando ? 'Editar médico' : 'Novo médico',
-                      style: const TextStyle(fontSize: 19, color: GaspoCores.azulTitulo, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 19, color: context.cores.titulo, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       'Campos com * são obrigatórios.',
-                      style: TextStyle(fontSize: 13, color: Colors.black54),
+                      style: TextStyle(fontSize: 13, color: context.cores.textoSecundario),
                     ),
                     const SizedBox(height: 18),
 
@@ -113,7 +113,7 @@ class _FormularioMedicoTelaState extends State<FormularioMedicoTela> {
                       controller: _nome,
                       textCapitalization: TextCapitalization.words,
                       textInputAction: TextInputAction.next,
-                      decoration: decoracaoCampo('Nome completo *', Icons.person_outline)
+                      decoration: decoracaoCampo(context, 'Nome completo *', Icons.person_outline)
                           .copyWith(hintText: 'Ex.: Dra. Ana Souza'),
                       validator: (v) => _obrigatorio(v, 'o nome'),
                     ),
@@ -123,7 +123,7 @@ class _FormularioMedicoTelaState extends State<FormularioMedicoTela> {
                       controller: _especialidade,
                       textCapitalization: TextCapitalization.sentences,
                       textInputAction: TextInputAction.next,
-                      decoration: decoracaoCampo('Especialidade *', Icons.medical_services_outlined)
+                      decoration: decoracaoCampo(context, 'Especialidade *', Icons.medical_services_outlined)
                           .copyWith(hintText: 'Ex.: Cardiologista'),
                       validator: (v) => _obrigatorio(v, 'a especialidade'),
                     ),
@@ -133,7 +133,7 @@ class _FormularioMedicoTelaState extends State<FormularioMedicoTela> {
                       controller: _email,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
-                      decoration: decoracaoCampo('E-mail', Icons.mail_outline),
+                      decoration: decoracaoCampo(context, 'E-mail', Icons.mail_outline),
                       validator: (v) => validarEmail(v, obrigatorio: false),
                     ),
                     const SizedBox(height: 16),
@@ -142,7 +142,7 @@ class _FormularioMedicoTelaState extends State<FormularioMedicoTela> {
                       controller: _telefone,
                       keyboardType: TextInputType.phone,
                       inputFormatters: [_mascaraTelefone],
-                      decoration: decoracaoCampo('Telefone', Icons.phone_outlined)
+                      decoration: decoracaoCampo(context, 'Telefone', Icons.phone_outlined)
                           .copyWith(hintText: '(00) 00000-0000'),
                       validator: validarTelefone,
                     ),
@@ -150,8 +150,8 @@ class _FormularioMedicoTelaState extends State<FormularioMedicoTela> {
 
                     DropdownButtonFormField<StatusProfissional>(
                       initialValue: _status,
-                      icon: const Icon(Icons.arrow_drop_down, color: GaspoCores.azulTitulo),
-                      decoration: decoracaoCampo('Status', Icons.work_outline),
+                      icon: Icon(Icons.arrow_drop_down, color: context.cores.titulo),
+                      decoration: decoracaoCampo(context, 'Status', Icons.work_outline),
                       items: [
                         for (final s in StatusProfissional.values)
                           DropdownMenuItem(

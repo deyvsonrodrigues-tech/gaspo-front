@@ -49,9 +49,9 @@ class GaspoBottomNav extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
-      selectedItemColor: GaspoCores.azul,
-      unselectedItemColor: Colors.black87,
+      backgroundColor: context.cores.superficie,
+      selectedItemColor: context.cores.destaque,
+      unselectedItemColor: context.cores.texto,
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
       unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
       onTap: (index) => _navegar(context, index),

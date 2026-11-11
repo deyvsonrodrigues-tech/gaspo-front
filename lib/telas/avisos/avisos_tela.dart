@@ -93,8 +93,8 @@ class _AvisosTelaState extends State<AvisosTela> {
                               ),
                             )
                           else if (_avisos.isEmpty)
-                            const Center(
-                              child: Text('Nenhum aviso no momento.', style: TextStyle(color: Colors.black54)),
+                            Center(
+                              child: Text('Nenhum aviso no momento.', style: TextStyle(color: context.cores.textoSecundario)),
                             )
                           else
                             for (final (indice, aviso) in visiveis.indexed) ...[
@@ -206,7 +206,7 @@ class _AvisosTelaState extends State<AvisosTela> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cores.superficie,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -222,7 +222,7 @@ class _AvisosTelaState extends State<AvisosTela> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: context.cores.superficieAlternativa,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: iconColor, size: 32),
@@ -238,10 +238,10 @@ class _AvisosTelaState extends State<AvisosTela> {
                     Expanded(
                       child: Text(
                         aviso.titulo,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: GaspoCores.azulEscuro,
+                          color: context.cores.tituloForte,
                         ),
                       ),
                     ),
@@ -268,7 +268,7 @@ class _AvisosTelaState extends State<AvisosTela> {
                   aviso.mensagem,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.grey[600],
+                    color: context.cores.textoSecundario,
                     height: 1.4,
                   ),
                 ),

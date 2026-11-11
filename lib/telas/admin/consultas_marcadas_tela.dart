@@ -122,21 +122,21 @@ class _ConsultasMarcadasTelaState extends State<ConsultasMarcadasTela> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
+              Text(
                 'Consulta marcada',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: GaspoCores.azulTitulo,
+                  color: context.cores.titulo,
                 ),
               ),
               const SizedBox(height: 12),
               ...detalhesConsulta(consulta),
               if (emAberto) ...[
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Alterar status',
-                  style: TextStyle(fontWeight: FontWeight.w600, color: GaspoCores.azulTitulo),
+                  style: TextStyle(fontWeight: FontWeight.w600, color: context.cores.titulo),
                 ),
                 const SizedBox(height: 8),
                 Wrap(
@@ -193,8 +193,8 @@ class _ConsultasMarcadasTelaState extends State<ConsultasMarcadasTela> {
       textInputAction: TextInputAction.search,
       decoration: InputDecoration(
         hintText: 'Buscar por profissional ou especialidade',
-        hintStyle: const TextStyle(fontSize: 14, color: Colors.black45),
-        prefixIcon: const Icon(Icons.search, color: GaspoCores.azul),
+        hintStyle: TextStyle(fontSize: 14, color: context.cores.textoFraco),
+        prefixIcon: Icon(Icons.search, color: context.cores.destaque),
         suffixIcon: _busca.text.isEmpty
             ? null
             : IconButton(
@@ -203,15 +203,15 @@ class _ConsultasMarcadasTelaState extends State<ConsultasMarcadasTela> {
                 onPressed: () => setState(_busca.clear),
               ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: context.cores.superficie,
         contentPadding: const EdgeInsets.symmetric(vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(color: Colors.black12),
+          borderSide: BorderSide(color: context.cores.borda),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(color: Colors.black12),
+          borderSide: BorderSide(color: context.cores.borda),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
@@ -267,18 +267,18 @@ class _ConsultasMarcadasTelaState extends State<ConsultasMarcadasTela> {
                   children: [
                     const GaspoHeader(padding: EdgeInsets.only(top: 16, bottom: 8)),
                     const SizedBox(height: 12),
-                    const Text(
+                    Text(
                       'Consultas',
                       style: TextStyle(
                         fontSize: 19,
-                        color: GaspoCores.azulTitulo,
+                        color: context.cores.titulo,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       'Acompanhe e atualize o status das consultas marcadas',
-                      style: TextStyle(fontSize: 13, color: Colors.black54),
+                      style: TextStyle(fontSize: 13, color: context.cores.textoSecundario),
                     ),
                     const SizedBox(height: 16),
                     _campoBusca(),

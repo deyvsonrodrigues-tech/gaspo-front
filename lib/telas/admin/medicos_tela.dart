@@ -110,14 +110,14 @@ class _MedicosTelaState extends State<MedicosTela> {
                 children: [
                   const GaspoHeader(),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'Médicos',
-                    style: TextStyle(fontSize: 19, color: GaspoCores.azulTitulo, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 19, color: context.cores.titulo, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'Profissionais que aparecem para os pacientes.',
-                    style: TextStyle(fontSize: 13, color: Colors.black54),
+                    style: TextStyle(fontSize: 13, color: context.cores.textoSecundario),
                   ),
                   const SizedBox(height: 18),
                   BotaoPrincipal(texto: 'Cadastrar médico', onPressed: () => _abrirFormulario()),
@@ -125,10 +125,10 @@ class _MedicosTelaState extends State<MedicosTela> {
                   if (_carregando)
                     const Center(child: CircularProgressIndicator())
                   else if (_profissionais.isEmpty)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(vertical: 24),
                       child: Center(
-                        child: Text('Nenhum médico cadastrado.', style: TextStyle(color: Colors.black54)),
+                        child: Text('Nenhum médico cadastrado.', style: TextStyle(color: context.cores.textoSecundario)),
                       ),
                     )
                   else
@@ -171,9 +171,9 @@ class _ItemMedico extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.only(left: 12, top: 10, bottom: 10, right: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cores.superficie,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black12),
+        border: Border.all(color: context.cores.borda),
       ),
       child: Row(
         children: [
@@ -193,12 +193,12 @@ class _ItemMedico extends StatelessWidget {
               children: [
                 Text(
                   profissional.nome,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: context.cores.texto),
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   profissional.especialidade,
-                  style: const TextStyle(fontSize: 12, color: Colors.black54),
+                  style: TextStyle(fontSize: 12, color: context.cores.textoSecundario),
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
@@ -243,12 +243,12 @@ class _ItemMedico extends StatelessWidget {
           IconButton(
             tooltip: 'Editar médico',
             onPressed: onEditar,
-            icon: const Icon(Icons.edit_outlined, color: GaspoCores.azul),
+            icon: Icon(Icons.edit_outlined, color: context.cores.destaque),
           ),
           IconButton(
             tooltip: 'Remover médico',
             onPressed: onRemover,
-            icon: const Icon(Icons.delete_outline, color: Colors.black54),
+            icon: Icon(Icons.delete_outline, color: context.cores.textoSecundario),
           ),
         ],
       ),

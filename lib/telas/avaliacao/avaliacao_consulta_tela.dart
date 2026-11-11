@@ -130,20 +130,20 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
       child: DropdownButtonFormField<String>(
         isExpanded: true,
         initialValue: selectedValue,
-        icon: const Icon(Icons.arrow_drop_down, color: GaspoCores.azulTitulo),
+        icon: Icon(Icons.arrow_drop_down, color: context.cores.titulo),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: GaspoCores.azulTitulo, fontWeight: FontWeight.w500),
-          prefixIcon: Icon(icon, color: GaspoCores.azulTitulo),
+          labelStyle: TextStyle(color: context.cores.titulo, fontWeight: FontWeight.w500),
+          prefixIcon: Icon(icon, color: context.cores.titulo),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: context.cores.superficie,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.black12),
+            borderSide: BorderSide(color: context.cores.borda),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.black12),
+            borderSide: BorderSide(color: context.cores.borda),
           ),
         ),
         items: items.map((String value) {
@@ -223,19 +223,19 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
         },
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: GaspoCores.azulTitulo, fontWeight: FontWeight.w500),
-          prefixIcon: Icon(icon, color: GaspoCores.azulTitulo),
+          labelStyle: TextStyle(color: context.cores.titulo, fontWeight: FontWeight.w500),
+          prefixIcon: Icon(icon, color: context.cores.titulo),
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.black26),
+          hintStyle: TextStyle(color: context.cores.textoFraco),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: context.cores.superficie,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.black12),
+            borderSide: BorderSide(color: context.cores.borda),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.black12),
+            borderSide: BorderSide(color: context.cores.borda),
           ),
         ),
       ),
@@ -255,9 +255,9 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
             children: [
               const GaspoHeader(),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Avaliação da Consulta',
-                style: TextStyle(fontSize: 19, color: GaspoCores.azulTitulo, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 19, color: context.cores.titulo, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 18),
 
@@ -310,10 +310,10 @@ class _AvaliacaoConsultaTelaState extends State<AvaliacaoConsultaTela> {
 
               _buildCampoTexto('Unidade de Saúde', Icons.location_on_outlined, _unidadeController),
 
-              const Divider(color: Colors.black26, thickness: 0.8, height: 24),
-              const Text(
+              Divider(color: context.cores.textoFraco, thickness: 0.8, height: 24),
+              Text(
                 'Adicionar Comentário',
-                style: TextStyle(fontSize: 15, color: GaspoCores.azulTitulo, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 15, color: context.cores.titulo, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 12),
 

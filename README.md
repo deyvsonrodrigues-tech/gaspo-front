@@ -113,6 +113,7 @@ lib/
 ├── modelos/                   # Usuario, Profissional, UnidadeSaude, HorarioAgenda, Consulta, Avaliacao, PerfilAcesso
 ├── dados/dados_exemplo.dart   # Dados fixos até a integração com a API
 ├── servicos/                  # Acesso aos dados (hoje em memória; depois, a Gaspo-api)
+│   ├── preferencias.dart      # Modo Escuro e Modo Silencioso salvos no aparelho
 │   ├── agenda_service.dart    # /api/agendas: gerar grade, listar, atualizar, remover
 │   ├── consulta_service.dart  # /api/consultas: horários livres, agendar, ativas, histórico, cancelar
 │   ├── avaliacao_service.dart # /api/avaliacoes: avaliar e listar por profissional

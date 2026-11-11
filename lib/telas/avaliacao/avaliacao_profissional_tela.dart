@@ -134,20 +134,20 @@ class _AvaliacaoProfissionalTelaState extends State<AvaliacaoProfissionalTela> {
             children: [
               const GaspoHeader(),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'Avaliação do Profissional',
                 style: TextStyle(
                   fontSize: 19,
-                  color: GaspoCores.azulTitulo,
+                  color: context.cores.titulo,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Informações do Profissional',
                 style: TextStyle(
                   fontSize: 15,
-                  color: GaspoCores.azulTitulo,
+                  color: context.cores.titulo,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -160,26 +160,26 @@ class _AvaliacaoProfissionalTelaState extends State<AvaliacaoProfissionalTela> {
                 DropdownButtonFormField<String>(
                   isExpanded: true,
                   initialValue: _medicoSelecionado,
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.arrow_drop_down,
-                    color: GaspoCores.azulTitulo,
+                    color: context.cores.titulo,
                   ),
                   decoration: InputDecoration(
                     labelText: 'Selecione o Médico',
-                    labelStyle: const TextStyle(color: GaspoCores.azulTitulo),
-                    prefixIcon: const Icon(
+                    labelStyle: TextStyle(color: context.cores.titulo),
+                    prefixIcon: Icon(
                       Icons.badge_outlined,
-                      color: GaspoCores.azulTitulo,
+                      color: context.cores.titulo,
                     ),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: context.cores.superficie,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.black12),
+                      borderSide: BorderSide(color: context.cores.borda),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.black12),
+                      borderSide: BorderSide(color: context.cores.borda),
                     ),
                   ),
                   items: _medicosSistema.map((String medico) {
@@ -200,14 +200,14 @@ class _AvaliacaoProfissionalTelaState extends State<AvaliacaoProfissionalTela> {
                 ),
 
               const SizedBox(height: 24),
-              const Divider(height: 1, color: Colors.black26),
+              Divider(height: 1, color: context.cores.textoFraco),
               const SizedBox(height: 24),
 
-              const Text(
+              Text(
                 'Adicionar Comentário',
                 style: TextStyle(
                   fontSize: 15,
-                  color: GaspoCores.azulTitulo,
+                  color: context.cores.titulo,
                   fontWeight: FontWeight.w600,
                 ),
               ),

@@ -4,20 +4,20 @@ import '../app/tema.dart';
 import '../utils/formatadores.dart';
 
 /// Decoração padrão dos campos de formulário (fundo branco, borda arredondada).
-InputDecoration decoracaoCampo(String label, IconData icone) {
+InputDecoration decoracaoCampo(BuildContext context, String label, IconData icone) {
   return InputDecoration(
     labelText: label,
-    labelStyle: const TextStyle(color: GaspoCores.azulTitulo, fontWeight: FontWeight.w500),
-    prefixIcon: Icon(icone, color: GaspoCores.azulTitulo),
+    labelStyle: TextStyle(color: context.cores.titulo, fontWeight: FontWeight.w500),
+    prefixIcon: Icon(icone, color: context.cores.titulo),
     filled: true,
-    fillColor: Colors.white,
+    fillColor: context.cores.superficie,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: Colors.black12),
+      borderSide: BorderSide(color: context.cores.borda),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: Colors.black12),
+      borderSide: BorderSide(color: context.cores.borda),
     ),
   );
 }
@@ -52,7 +52,7 @@ class CampoData extends StatelessWidget {
       onTap: () => _escolher(context),
       borderRadius: BorderRadius.circular(12),
       child: InputDecorator(
-        decoration: decoracaoCampo(label, Icons.calendar_today_outlined),
+        decoration: decoracaoCampo(context, label, Icons.calendar_today_outlined),
         child: Text(formatarData(data), style: const TextStyle(fontSize: 14)),
       ),
     );

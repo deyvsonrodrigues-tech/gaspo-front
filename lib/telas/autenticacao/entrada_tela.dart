@@ -51,7 +51,7 @@ class EntradaTela extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Image.asset(
-                  'assets/logo_gaspo_horizontal.png',
+                  context.temaEscuro ? 'assets/logo_gaspo_horizontal_escuro.png' : 'assets/logo_gaspo_horizontal.png',
                   width: 180,
                   fit: BoxFit.contain,
                 ),
@@ -60,13 +60,13 @@ class EntradaTela extends StatelessWidget {
               const SizedBox(height: 55),
 
               // TEXTO ENTRAR COMO
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Entrar como:',
                   style: TextStyle(
                     fontSize: 16,
-                    color: GaspoCores.azulEscuro,
+                    color: context.cores.tituloForte,
                   ),
                 ),
               ),
@@ -91,24 +91,24 @@ class EntradaTela extends StatelessWidget {
                 alignment: WrapAlignment.center,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     'Ainda não tem uma conta?',
                     style: TextStyle(
                       fontSize: 13,
-                      color: GaspoCores.azulEscuro,
+                      color: context.cores.tituloForte,
                     ),
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.pushNamed(context, Rotas.cadastro);
                     },
-                    child: const Text(
+                    child: Text(
                       'Cadastrar-se',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline,
-                        color: GaspoCores.azulEscuro,
+                        color: context.cores.tituloForte,
                       ),
                     ),
                   ),

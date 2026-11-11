@@ -25,7 +25,7 @@ class SeletorEstrelas extends StatelessWidget {
             size: 44,
             color: index < estrelasSelecionadas
                 ? GaspoCores.estrelaAtiva
-                : GaspoCores.estrelaInativa,
+                : context.cores.estrelaInativa,
           ),
         );
       }),
@@ -49,16 +49,16 @@ class CampoComentario extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: GaspoCores.fundoComentario,
+        color: context.cores.superficieAlternativa,
         borderRadius: BorderRadius.circular(20),
       ),
       child: TextField(
         controller: controller,
         maxLines: 3,
         decoration: InputDecoration(
-          icon: const Icon(Icons.chat_bubble, color: GaspoCores.azul),
+          icon: Icon(Icons.chat_bubble, color: context.cores.destaque),
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.black54, fontSize: 14),
+          hintStyle: TextStyle(color: context.cores.textoSecundario, fontSize: 14),
           border: InputBorder.none,
         ),
       ),
@@ -85,8 +85,8 @@ class BotaoSecundario extends StatelessWidget {
         height: 42,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: GaspoCores.botaoSecundarioFundo,
-            foregroundColor: GaspoCores.botaoSecundarioTexto,
+            backgroundColor: context.cores.botaoSecundarioFundo,
+            foregroundColor: context.cores.botaoSecundarioTexto,
             elevation: 0,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),

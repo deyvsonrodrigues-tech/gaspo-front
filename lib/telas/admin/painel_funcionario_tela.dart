@@ -20,11 +20,11 @@ class PainelFuncionarioTela extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
-        color: Colors.white,
+        color: context.cores.superficie,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: const BorderSide(color: Colors.black12),
+          side: BorderSide(color: context.cores.borda),
         ),
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -36,9 +36,9 @@ class PainelFuncionarioTela extends StatelessWidget {
           ),
           title: Text(
             titulo,
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: cor == Colors.red ? Colors.red : GaspoCores.azulTitulo),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: cor == Colors.red ? Colors.red : context.cores.titulo),
           ),
-          subtitle: Text(descricao, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+          subtitle: Text(descricao, style: TextStyle(fontSize: 12, color: context.cores.textoSecundario)),
           trailing: Icon(Icons.chevron_right, color: cor),
         ),
       ),
@@ -59,14 +59,14 @@ class PainelFuncionarioTela extends StatelessWidget {
                 children: [
                   GaspoHeader(onBack: () => sairDaConta(context)),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'Painel do Funcionário',
-                    style: TextStyle(fontSize: 19, color: GaspoCores.azulTitulo, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 19, color: context.cores.titulo, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'O que você quer gerenciar?',
-                    style: TextStyle(fontSize: 13, color: Colors.black54),
+                    style: TextStyle(fontSize: 13, color: context.cores.textoSecundario),
                   ),
                   const SizedBox(height: 20),
                   _opcao(

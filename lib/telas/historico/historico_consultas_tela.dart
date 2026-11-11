@@ -107,12 +107,12 @@ class _HistoricoConsultasTelaState extends State<HistoricoConsultasTela> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
+              Text(
                 'Detalhes da consulta',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: GaspoCores.azulTitulo,
+                  color: context.cores.titulo,
                 ),
               ),
               const SizedBox(height: 12),
@@ -189,11 +189,11 @@ class _HistoricoConsultasTelaState extends State<HistoricoConsultasTela> {
                   children: [
                     const GaspoHeader(padding: EdgeInsets.only(top: 16, bottom: 8)),
                     const SizedBox(height: 20),
-                    const Text(
+                    Text(
                       'Histórico de Consultas',
                       style: TextStyle(
                         fontSize: 19,
-                        color: GaspoCores.azulTitulo,
+                        color: context.cores.titulo,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

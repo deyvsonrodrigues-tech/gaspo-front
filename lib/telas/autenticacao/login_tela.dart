@@ -57,12 +57,12 @@ class _LoginTelaState extends State<LoginTela> {
           Icon(
             _funcionario ? Icons.badge_outlined : Icons.person_outline,
             size: 18,
-            color: GaspoCores.azul,
+            color: context.cores.destaque,
           ),
           const SizedBox(width: 6),
           Text(
             _funcionario ? 'Acesso do funcionário' : 'Acesso do paciente',
-            style: const TextStyle(fontSize: 13, color: GaspoCores.azul, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: 13, color: context.cores.destaque, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -92,14 +92,14 @@ class _LoginTelaState extends State<LoginTela> {
                     const SizedBox(height: 40),
                     _seloPerfil(),
                     const SizedBox(height: 14),
-                    const Text(
+                    Text(
                       'Entrar',
-                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: GaspoCores.azulEscuro),
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: context.cores.tituloForte),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
+                    Text(
                       'Informe seu CPF e sua senha para acessar o aplicativo.',
-                      style: TextStyle(fontSize: 15, color: Colors.black54, height: 1.4),
+                      style: TextStyle(fontSize: 15, color: context.cores.textoSecundario, height: 1.4),
                     ),
                     const SizedBox(height: 28),
 
@@ -110,7 +110,7 @@ class _LoginTelaState extends State<LoginTela> {
                       textInputAction: TextInputAction.next,
                       inputFormatters: [_mascaraCpf],
                       style: const TextStyle(fontSize: 16),
-                      decoration: decoracaoCampo('CPF', Icons.badge_outlined)
+                      decoration: decoracaoCampo(context, 'CPF', Icons.badge_outlined)
                           .copyWith(hintText: '000.000.000-00'),
                       validator: validarCpf,
                     ),
@@ -123,12 +123,12 @@ class _LoginTelaState extends State<LoginTela> {
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => entrar(),
                       style: const TextStyle(fontSize: 16),
-                      decoration: decoracaoCampo('Senha', Icons.lock_outline).copyWith(
+                      decoration: decoracaoCampo(context, 'Senha', Icons.lock_outline).copyWith(
                         suffixIcon: IconButton(
                           tooltip: senhaOculta ? 'Mostrar senha' : 'Ocultar senha',
                           icon: Icon(
                             senhaOculta ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                            color: GaspoCores.azulTitulo,
+                            color: context.cores.titulo,
                           ),
                           onPressed: () => setState(() => senhaOculta = !senhaOculta),
                         ),
@@ -148,18 +148,18 @@ class _LoginTelaState extends State<LoginTela> {
                           alignment: WrapAlignment.center,
                           crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
-                            const Text(
+                            Text(
                               'Ainda não tem uma conta?',
-                              style: TextStyle(fontSize: 14, color: GaspoCores.azulEscuro),
+                              style: TextStyle(fontSize: 14, color: context.cores.tituloForte),
                             ),
                             TextButton(
                               onPressed: () => Navigator.pushReplacementNamed(context, Rotas.cadastro),
-                              child: const Text(
+                              child: Text(
                                 'Criar conta',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: GaspoCores.azul,
+                                  color: context.cores.destaque,
                                 ),
                               ),
                             ),

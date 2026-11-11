@@ -299,7 +299,7 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icone, size: 20, color: GaspoCores.azul),
+          Icon(icone, size: 20, color: context.cores.destaque),
           const SizedBox(width: 10),
           Expanded(child: Text(texto, style: const TextStyle(fontSize: 14))),
         ],
@@ -315,7 +315,7 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
           Expanded(
             child: Text(
               titulo,
-              style: const TextStyle(fontSize: 16, color: GaspoCores.azulTitulo, fontWeight: FontWeight.w600),
+              style: TextStyle(fontSize: 16, color: context.cores.titulo, fontWeight: FontWeight.w600),
             ),
           ),
           ?acao,
@@ -335,11 +335,11 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
           selected: selecionado,
           showCheckmark: false,
           selectedColor: GaspoCores.azul,
-          backgroundColor: Colors.white,
-          side: BorderSide(color: selecionado ? GaspoCores.azul : Colors.black26),
+          backgroundColor: context.cores.superficie,
+          side: BorderSide(color: selecionado ? GaspoCores.azul : context.cores.textoFraco),
           labelStyle: TextStyle(
             fontSize: 14,
-            color: selecionado ? Colors.white : GaspoCores.azulTitulo,
+            color: selecionado ? Colors.white : context.cores.titulo,
             fontWeight: FontWeight.w500,
           ),
           onSelected: (_) => _escolherEspecialidade(valor),
@@ -379,12 +379,12 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
-        color: Colors.white,
+        color: context.cores.superficie,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(
-            color: selecionado ? GaspoCores.azul : Colors.black12,
+            color: selecionado ? GaspoCores.azul : context.cores.borda,
             width: selecionado ? 2 : 1,
           ),
         ),
@@ -410,7 +410,7 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: selecionado ? GaspoCores.azul : Colors.blueGrey,
+                          color: selecionado ? context.cores.destaque : Colors.blueGrey,
                         ),
                       ),
                     ),
@@ -422,17 +422,17 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
                       children: [
                         Text(
                           p.nome,
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87),
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: context.cores.texto),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           '${p.especialidade} · $detalhe',
-                          style: const TextStyle(fontSize: 13, color: Colors.black54),
+                          style: TextStyle(fontSize: 13, color: context.cores.textoSecundario),
                         ),
                       ],
                     ),
                   ),
-                  if (selecionado) const Icon(Icons.check_circle, color: GaspoCores.azul),
+                  if (selecionado) Icon(Icons.check_circle, color: context.cores.destaque),
                 ],
               ),
             ),
@@ -465,7 +465,7 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
           final quantidade = ehExtra ? _vagasDiaExtra.length : (vagas[dia]?.length ?? 0);
           final selecionado = _dia != null && DateUtils.isSameDay(dia, _dia);
           final ativo = quantidade > 0;
-          final corTexto = selecionado ? Colors.white : (ativo ? GaspoCores.azulEscuro : Colors.black26);
+          final corTexto = selecionado ? Colors.white : (ativo ? context.cores.tituloForte : context.cores.textoFraco);
 
           return Semantics(
             button: true,
@@ -475,10 +475,10 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
                 '${ativo ? '$quantidade vagas' : 'sem vagas'}',
             excludeSemantics: true,
             child: Material(
-              color: selecionado ? GaspoCores.azul : Colors.white,
+              color: selecionado ? GaspoCores.azul : context.cores.superficie,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: selecionado ? GaspoCores.azul : Colors.black12),
+                side: BorderSide(color: selecionado ? GaspoCores.azul : context.cores.borda),
               ),
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
@@ -519,13 +519,13 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
     if (_dia == null) {
       return Text(
         'Sem vagas nos próximos ${AgendamentoTela.diasNaFaixa} dias. Escolha outra data ou outro profissional.',
-        style: const TextStyle(fontSize: 14, color: Colors.black54),
+        style: TextStyle(fontSize: 14, color: context.cores.textoSecundario),
       );
     }
     if (vagas.isEmpty) {
-      return const Text(
+      return Text(
         'Nenhum horário livre neste dia. Escolha outro dia.',
-        style: TextStyle(fontSize: 14, color: Colors.black54),
+        style: TextStyle(fontSize: 14, color: context.cores.textoSecundario),
       );
     }
 
@@ -542,7 +542,7 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
           if (horarios.isNotEmpty) ...[
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Text(periodo, style: const TextStyle(fontSize: 13, color: Colors.black54)),
+              child: Text(periodo, style: TextStyle(fontSize: 13, color: context.cores.textoSecundario)),
             ),
             GridView.count(
               crossAxisCount: 3,
@@ -565,7 +565,7 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
       selected: selecionado,
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
-          backgroundColor: selecionado ? GaspoCores.azul : Colors.white,
+          backgroundColor: selecionado ? GaspoCores.azul : context.cores.superficie,
           foregroundColor: selecionado ? Colors.white : GaspoCores.azul,
           side: const BorderSide(color: GaspoCores.azul),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -583,7 +583,7 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
     final profissional = _profissional!;
     final dia = horario.data;
     return Material(
-      color: Colors.white,
+      color: context.cores.superficie,
       elevation: 8,
       child: SafeArea(
         top: false,
@@ -599,11 +599,11 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
                   children: [
                     Text(
                       '${_diasDaSemanaExtenso[dia.weekday - 1]}, ${formatarData(dia).substring(0, 5)} às ${formatarHora(horario.horario)}',
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: GaspoCores.azulEscuro),
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: context.cores.tituloForte),
                     ),
                     Text(
                       profissional.nome,
-                      style: const TextStyle(fontSize: 13, color: Colors.black54),
+                      style: TextStyle(fontSize: 13, color: context.cores.textoSecundario),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
@@ -652,14 +652,14 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
                 children: [
                   const GaspoHeader(),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'Agendar consulta',
-                    style: TextStyle(fontSize: 22, color: GaspoCores.azulEscuro, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 22, color: context.cores.tituloForte, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'Escolha o profissional, o dia e o horário.',
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
+                    style: TextStyle(fontSize: 14, color: context.cores.textoSecundario),
                   ),
 
                   if (_carregandoProfissionais)
@@ -672,7 +672,7 @@ class _AgendamentoTelaState extends State<AgendamentoTela> {
                     _buildFiltroEspecialidade(),
                     _secao('Profissional'),
                     if (_profissionaisFiltrados.isEmpty)
-                      const Text('Nenhum profissional nesta especialidade.', style: TextStyle(color: Colors.black54))
+                      Text('Nenhum profissional nesta especialidade.', style: TextStyle(color: context.cores.textoSecundario))
                     else
                       for (final p in _profissionaisFiltrados) _buildCartaoProfissional(p),
 

@@ -55,7 +55,7 @@ class BarraFiltrosConsulta extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cores.superficie,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
@@ -151,10 +151,10 @@ class CartaoConsulta extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: _raioIcone),
             child: Material(
-              color: Colors.white,
+              color: context.cores.superficie,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                side: const BorderSide(color: GaspoCores.azulCabecalho, width: 1.5),
+                side: BorderSide(color: context.cores.cabecalho, width: 1.5),
               ),
               clipBehavior: Clip.antiAlias,
               child: InkWell(
@@ -171,10 +171,10 @@ class CartaoConsulta extends StatelessWidget {
                           children: [
                             Text(
                               consulta.nomeProfissional,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                                color: context.cores.texto,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -182,7 +182,7 @@ class CartaoConsulta extends StatelessWidget {
                             const SizedBox(height: 2),
                             Text(
                               especialidade == null ? hora : '$especialidade • $hora',
-                              style: const TextStyle(fontSize: 13, color: Colors.black54),
+                              style: TextStyle(fontSize: 13, color: context.cores.textoSecundario),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -200,16 +200,16 @@ class CartaoConsulta extends StatelessWidget {
                         ),
                       ),
                       if (onTap != null)
-                        const Icon(Icons.chevron_right, color: Colors.black38),
+                        Icon(Icons.chevron_right, color: context.cores.textoFraco),
                     ],
                   ),
                 ),
               ),
             ),
           ),
-          const CircleAvatar(
+          CircleAvatar(
             radius: _raioIcone,
-            backgroundColor: GaspoCores.azulCabecalho,
+            backgroundColor: context.cores.cabecalho,
             child: Icon(Icons.calendar_month_outlined, color: Colors.white, size: 22),
           ),
         ],
@@ -228,25 +228,25 @@ class _SeloData extends StatelessWidget {
       width: 54,
       padding: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        color: GaspoCores.botaoSecundarioFundo,
+        color: context.cores.botaoSecundarioFundo,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
         children: [
           Text(
             mesAbreviado(data),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: GaspoCores.azulTitulo,
+              color: context.cores.titulo,
             ),
           ),
           Text(
             data.day.toString().padLeft(2, '0'),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: GaspoCores.azulTitulo,
+              color: context.cores.titulo,
             ),
           ),
         ],
@@ -266,12 +266,12 @@ class ListaConsultasVazia extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
       child: Column(
         children: [
-          const Icon(Icons.event_busy_outlined, size: 56, color: Colors.black26),
+          Icon(Icons.event_busy_outlined, size: 56, color: context.cores.textoFraco),
           const SizedBox(height: 12),
           Text(
             mensagem,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14, color: Colors.black54),
+            style: TextStyle(fontSize: 14, color: context.cores.textoSecundario),
           ),
         ],
       ),
@@ -299,16 +299,16 @@ class LinhaDetalheConsulta extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icone, size: 20, color: GaspoCores.azul),
+          Icon(icone, size: 20, color: context.cores.destaque),
           const SizedBox(width: 10),
           SizedBox(
             width: 100,
             child: Text(
               rotulo,
-              style: const TextStyle(fontWeight: FontWeight.w600, color: GaspoCores.azulTitulo),
+              style: TextStyle(fontWeight: FontWeight.w600, color: context.cores.titulo),
             ),
           ),
-          Expanded(child: Text(valor, style: const TextStyle(color: Colors.black87))),
+          Expanded(child: Text(valor, style: TextStyle(color: context.cores.texto))),
         ],
       ),
     );

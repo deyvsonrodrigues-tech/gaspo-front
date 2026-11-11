@@ -128,7 +128,7 @@ class _PerfilProfissionalTelaState extends State<PerfilProfissionalTela> {
       padding: const EdgeInsets.only(top: 28, bottom: 12),
       child: Text(
         titulo,
-        style: const TextStyle(fontSize: 15, color: GaspoCores.azulTitulo, fontWeight: FontWeight.w600),
+        style: TextStyle(fontSize: 15, color: context.cores.titulo, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -138,11 +138,11 @@ class _PerfilProfissionalTelaState extends State<PerfilProfissionalTela> {
     return SizedBox(
       width: double.infinity,
       child: Material(
-        color: Colors.white,
+        color: context.cores.superficie,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Colors.black12),
+          side: BorderSide(color: context.cores.borda),
         ),
         child: child,
       ),
@@ -175,10 +175,10 @@ class _PerfilProfissionalTelaState extends State<PerfilProfissionalTela> {
         Text(
           _profissional.nome,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: GaspoCores.azulTitulo,
+            color: context.cores.titulo,
           ),
         ),
 
@@ -187,9 +187,9 @@ class _PerfilProfissionalTelaState extends State<PerfilProfissionalTela> {
         // Especialidade
         Text(
           _profissional.especialidade,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
-            color: Colors.black54,
+            color: context.cores.textoSecundario,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -202,7 +202,7 @@ class _PerfilProfissionalTelaState extends State<PerfilProfissionalTela> {
           children: [
             const Icon(Icons.star, color: Colors.amber, size: 18),
             const SizedBox(width: 4),
-            Text(_resumoNota, style: const TextStyle(fontSize: 13, color: Colors.black54)),
+            Text(_resumoNota, style: TextStyle(fontSize: 13, color: context.cores.textoSecundario)),
           ],
         ),
 
@@ -249,9 +249,9 @@ class _PerfilProfissionalTelaState extends State<PerfilProfissionalTela> {
     final telefone = _profissional.telefone;
 
     if (unidade == null && email == null && telefone == null) {
-      return const Text(
+      return Text(
         'Informações de atendimento não cadastradas.',
-        style: TextStyle(fontSize: 13, color: Colors.black54),
+        style: TextStyle(fontSize: 13, color: context.cores.textoSecundario),
       );
     }
 
@@ -260,24 +260,24 @@ class _PerfilProfissionalTelaState extends State<PerfilProfissionalTela> {
         children: [
           if (unidade != null)
             ListTile(
-              leading: const Icon(Icons.local_hospital_outlined, color: GaspoCores.azul),
+              leading: Icon(Icons.local_hospital_outlined, color: context.cores.destaque),
               title: Text(unidade.nome ?? 'Unidade de Saúde', style: const TextStyle(fontSize: 14)),
               subtitle: Text(
                 [unidade.endereco, ?unidade.horarioFuncionamento].join('\n'),
                 style: const TextStyle(fontSize: 12),
               ),
               isThreeLine: unidade.horarioFuncionamento != null,
-              trailing: const Icon(Icons.chevron_right, color: GaspoCores.azul),
+              trailing: Icon(Icons.chevron_right, color: context.cores.destaque),
               onTap: () => Navigator.pushNamed(context, Rotas.localizacao),
             ),
           if (email != null)
             ListTile(
-              leading: const Icon(Icons.mail_outline, color: GaspoCores.azul),
+              leading: Icon(Icons.mail_outline, color: context.cores.destaque),
               title: Text(email, style: const TextStyle(fontSize: 14)),
             ),
           if (telefone != null)
             ListTile(
-              leading: const Icon(Icons.phone_outlined, color: GaspoCores.azul),
+              leading: Icon(Icons.phone_outlined, color: context.cores.destaque),
               title: Text(telefone, style: const TextStyle(fontSize: 14)),
             ),
         ],
@@ -287,9 +287,9 @@ class _PerfilProfissionalTelaState extends State<PerfilProfissionalTela> {
 
   Widget _buildHorarios() {
     if (_horarios.isEmpty) {
-      return const Text(
+      return Text(
         'Sem horários livres nos próximos 7 dias.',
-        style: TextStyle(fontSize: 13, color: Colors.black54),
+        style: TextStyle(fontSize: 13, color: context.cores.textoSecundario),
       );
     }
     return Wrap(
@@ -299,8 +299,8 @@ class _PerfilProfissionalTelaState extends State<PerfilProfissionalTela> {
         for (final horario in _horarios)
           ActionChip(
             label: Text(_rotuloHorario(horario)),
-            labelStyle: const TextStyle(color: GaspoCores.azul, fontWeight: FontWeight.w600),
-            backgroundColor: Colors.white,
+            labelStyle: TextStyle(color: context.cores.destaque, fontWeight: FontWeight.w600),
+            backgroundColor: context.cores.superficie,
             side: const BorderSide(color: GaspoCores.azul),
             tooltip: 'Agendar neste horário',
             onPressed: () => _agendar(horario: horario),
@@ -311,9 +311,9 @@ class _PerfilProfissionalTelaState extends State<PerfilProfissionalTela> {
 
   Widget _buildAvaliacoes() {
     if (_avaliacoes.isEmpty) {
-      return const Text(
+      return Text(
         'Ainda não há avaliações deste profissional.',
-        style: TextStyle(fontSize: 13, color: Colors.black54),
+        style: TextStyle(fontSize: 13, color: context.cores.textoSecundario),
       );
     }
     return Column(
@@ -333,23 +333,23 @@ class _PerfilProfissionalTelaState extends State<PerfilProfissionalTela> {
                           Icon(
                             Icons.star,
                             size: 16,
-                            color: i < avaliacao.nota ? GaspoCores.estrelaAtiva : GaspoCores.estrelaInativa,
+                            color: i < avaliacao.nota ? GaspoCores.estrelaAtiva : context.cores.estrelaInativa,
                           ),
                         const Spacer(),
                         Text(
                           formatarData(avaliacao.dataAvaliacao),
-                          style: const TextStyle(fontSize: 12, color: Colors.black45),
+                          style: TextStyle(fontSize: 12, color: context.cores.textoFraco),
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
                     Text(
                       avaliacao.nomePaciente ?? 'Paciente',
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.cores.texto),
                     ),
                     if (avaliacao.comentario != null) ...[
                       const SizedBox(height: 4),
-                      Text(avaliacao.comentario!, style: const TextStyle(fontSize: 13, color: Colors.black87)),
+                      Text(avaliacao.comentario!, style: TextStyle(fontSize: 13, color: context.cores.texto)),
                     ],
                   ],
                 ),

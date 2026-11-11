@@ -43,7 +43,7 @@ class _SplashTelaState extends State<SplashTela> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/logo_gaspo.png',
+              context.temaEscuro ? 'assets/logo_gaspo_escuro.png' : 'assets/logo_gaspo.png',
               width: 350,
               fit: BoxFit.contain,
             ),

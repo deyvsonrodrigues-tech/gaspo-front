@@ -97,13 +97,13 @@ class _AvisosPublicadosTelaState extends State<AvisosPublicadosTela> {
                 children: [
                   const GaspoHeader(),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Avisos Publicados',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: GaspoCores.azulEscuro),
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: context.cores.tituloForte),
                   ),
-                  const Text(
+                  Text(
                     'Publique comunicados e acompanhe-os',
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                    style: TextStyle(color: context.cores.textoFraco, fontSize: 14),
                   ),
                   const SizedBox(height: 16),
                   BotaoPrincipal(texto: 'Novo Aviso', onPressed: () => _abrirFormulario()),
@@ -111,10 +111,10 @@ class _AvisosPublicadosTelaState extends State<AvisosPublicadosTela> {
                   if (_carregando)
                     const Center(child: CircularProgressIndicator())
                   else if (_avisos.isEmpty)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(vertical: 24),
                       child: Center(
-                        child: Text('Nenhum aviso publicado.', style: TextStyle(color: Colors.black54)),
+                        child: Text('Nenhum aviso publicado.', style: TextStyle(color: context.cores.textoSecundario)),
                       ),
                     )
                   else
@@ -134,7 +134,7 @@ class _AvisosPublicadosTelaState extends State<AvisosPublicadosTela> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cores.superficie,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
       ),
@@ -150,25 +150,25 @@ class _AvisosPublicadosTelaState extends State<AvisosPublicadosTela> {
             children: [
               Text(
                 'Publicado em ${formatarData(aviso.dataPublicacao)}',
-                style: const TextStyle(fontSize: 12, color: Colors.black45),
+                style: TextStyle(fontSize: 12, color: context.cores.textoFraco),
               ),
               if (!aviso.visivelParaPacientes) ...[
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.grey[200],
+                    color: context.cores.superficieAlternativa,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     aviso.expirado ? 'Expirado' : 'Oculto',
-                    style: const TextStyle(fontSize: 11, color: Colors.black54, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 11, color: context.cores.textoSecundario, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
             ],
           ),
           const SizedBox(height: 8),
-          Text(aviso.mensagem, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+          Text(aviso.mensagem, style: TextStyle(color: context.cores.textoSecundario, fontSize: 14)),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -179,7 +179,7 @@ class _AvisosPublicadosTelaState extends State<AvisosPublicadosTela> {
                     side: const BorderSide(color: GaspoCores.azul),
                   ),
                   onPressed: () => _abrirFormulario(aviso),
-                  child: const Text('Atualizar', style: TextStyle(color: GaspoCores.azul)),
+                  child: Text('Atualizar', style: TextStyle(color: context.cores.destaque)),
                 ),
               ),
               const SizedBox(width: 12),

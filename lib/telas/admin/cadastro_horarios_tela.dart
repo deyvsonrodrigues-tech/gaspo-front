@@ -177,7 +177,7 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
   Widget _subtitulo(String texto) {
     return Text(
       texto,
-      style: const TextStyle(fontSize: 15, color: GaspoCores.azulTitulo, fontWeight: FontWeight.w600),
+      style: TextStyle(fontSize: 15, color: context.cores.titulo, fontWeight: FontWeight.w600),
     );
   }
 
@@ -191,8 +191,8 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
         DropdownButtonFormField<Profissional>(
           isExpanded: true,
           initialValue: _profissional,
-          icon: const Icon(Icons.arrow_drop_down, color: GaspoCores.azulTitulo),
-          decoration: decoracaoCampo('Profissional', Icons.person_outline),
+          icon: Icon(Icons.arrow_drop_down, color: context.cores.titulo),
+          decoration: decoracaoCampo(context, 'Profissional', Icons.person_outline),
           items: _profissionais.map((profissional) {
             return DropdownMenuItem<Profissional>(
               value: profissional,
@@ -210,9 +210,9 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
         CampoData(data: _data, onChanged: (data) => setState(() => _data = data)),
         const SizedBox(height: 16),
 
-        const Text(
+        Text(
           'Horários',
-          style: TextStyle(fontSize: 13, color: GaspoCores.azulTitulo, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: 13, color: context.cores.titulo, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -222,7 +222,7 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
             for (final hora in _horariosNovos)
               InputChip(
                 label: Text(formatarHora(hora)),
-                backgroundColor: Colors.white,
+                backgroundColor: context.cores.superficie,
                 side: const BorderSide(color: GaspoCores.azul),
                 deleteIconColor: GaspoCores.azul,
                 onDeleted: () => setState(() => _horariosNovos.remove(hora)),
@@ -259,7 +259,7 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
           padding: const EdgeInsets.only(top: 12, bottom: 6),
           child: Text(
             MaterialLocalizations.of(context).formatFullDate(horario.data),
-            style: const TextStyle(fontSize: 13, color: Colors.black54, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: 13, color: context.cores.textoSecundario, fontWeight: FontWeight.w600),
           ),
         ));
       }
@@ -278,7 +278,7 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
         const SizedBox(height: 2),
         Text(
           profissional == null ? 'Todos os profissionais' : profissional.nome,
-          style: const TextStyle(fontSize: 12, color: Colors.black54),
+          style: TextStyle(fontSize: 12, color: context.cores.textoSecundario),
         ),
         if (_carregando)
           const Padding(
@@ -286,10 +286,10 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
             child: Center(child: CircularProgressIndicator()),
           )
         else if (visiveis.isEmpty)
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 24),
             child: Center(
-              child: Text('Nenhum horário cadastrado.', style: TextStyle(color: Colors.black54)),
+              child: Text('Nenhum horário cadastrado.', style: TextStyle(color: context.cores.textoSecundario)),
             ),
           )
         else
@@ -312,14 +312,14 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
                 children: [
                   const GaspoHeader(),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'Cadastro de Horários',
-                    style: TextStyle(fontSize: 19, color: GaspoCores.azulTitulo, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 19, color: context.cores.titulo, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'Gere a grade de atendimento de um profissional.',
-                    style: TextStyle(fontSize: 13, color: Colors.black54),
+                    style: TextStyle(fontSize: 13, color: context.cores.textoSecundario),
                   ),
                   const SizedBox(height: 18),
                   if (largo)
@@ -333,7 +333,7 @@ class _CadastroHorariosTelaState extends State<CadastroHorariosTela> {
                     )
                   else ...[
                     _buildFormulario(),
-                    const Divider(color: Colors.black26, thickness: 0.8, height: 40),
+                    Divider(color: context.cores.textoFraco, thickness: 0.8, height: 40),
                     _buildLista(),
                   ],
                   const SizedBox(height: 20),
@@ -368,13 +368,13 @@ class _ItemHorario extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.only(left: 14, top: 6, bottom: 6, right: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cores.superficie,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black12),
+        border: Border.all(color: context.cores.borda),
       ),
       child: Row(
         children: [
-          const Icon(Icons.access_time, color: GaspoCores.azul, size: 20),
+          Icon(Icons.access_time, color: context.cores.destaque, size: 20),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -382,12 +382,12 @@ class _ItemHorario extends StatelessWidget {
               children: [
                 Text(
                   formatarHora(horario.horario),
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: context.cores.texto),
                 ),
                 if (mostrarProfissional)
                   Text(
                     horario.nomeProfissional,
-                    style: const TextStyle(fontSize: 12, color: Colors.black54),
+                    style: TextStyle(fontSize: 12, color: context.cores.textoSecundario),
                     overflow: TextOverflow.ellipsis,
                   ),
               ],
@@ -431,7 +431,7 @@ class _ItemHorario extends StatelessWidget {
           IconButton(
             tooltip: 'Remover horário',
             onPressed: onRemover,
-            icon: const Icon(Icons.delete_outline, color: Colors.black54),
+            icon: Icon(Icons.delete_outline, color: context.cores.textoSecundario),
           ),
         ],
       ),

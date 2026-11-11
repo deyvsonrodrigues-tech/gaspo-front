@@ -20,8 +20,8 @@ class HomeTela extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              decoration: const BoxDecoration(
-                color: GaspoCores.azulCabecalho,
+              decoration: BoxDecoration(
+                color: context.cores.cabecalho,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(18),
                   bottomRight: Radius.circular(18),
@@ -289,7 +289,7 @@ class _CategoryCardState extends State<_CategoryCard> {
         ],
       ),
       child: Material(
-        color: Colors.white,
+        color: context.cores.superficie,
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
           onTap: widget.onTap,
@@ -300,7 +300,7 @@ class _CategoryCardState extends State<_CategoryCard> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               decoration: BoxDecoration(
-                color: isBlue ? GaspoCores.azul : Colors.white,
+                color: isBlue ? GaspoCores.azul : context.cores.superficie,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Column(
@@ -309,7 +309,7 @@ class _CategoryCardState extends State<_CategoryCard> {
                   Icon(
                     widget.icon,
                     size: 46,
-                    color: isBlue ? Colors.white : GaspoCores.azul,
+                    color: isBlue ? Colors.white : context.cores.destaque,
                   ),
                   const SizedBox(height: 10),
                   Text(
@@ -317,7 +317,7 @@ class _CategoryCardState extends State<_CategoryCard> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: isBlue ? Colors.white : Colors.grey[600],
+                      color: isBlue ? Colors.white : context.cores.textoSecundario,
                     ),
                   ),
                 ],
