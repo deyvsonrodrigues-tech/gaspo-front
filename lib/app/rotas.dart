@@ -11,6 +11,7 @@ import '../telas/admin/formulario_medico_tela.dart';
 import '../telas/admin/medicos_tela.dart';
 import '../telas/admin/painel_funcionario_tela.dart';
 import '../telas/agendamento/agendamento_tela.dart';
+import '../telas/ajuda/ajuda_tela.dart';
 import '../telas/autenticacao/cadastro_tela.dart';
 import '../telas/avisos/avisos_tela.dart';
 import '../telas/autenticacao/entrada_tela.dart';
@@ -52,6 +53,7 @@ class Rotas {
   static const String localizacao = '/localizacao';
   static const String notificacoes = '/notificacoes';
   static const String avisos = '/avisos';
+  static const String ajuda = '/ajuda';
   static const String perfil = '/perfil';
   static const String historico = '/historico';
 
@@ -95,6 +97,7 @@ class Rotas {
       localizacao => const LocalizacaoTela(),
       notificacoes => const NotificacoesTela(),
       avisos => const AvisosTela(),
+      ajuda => const AjudaTela(),
       perfil => const PerfilTela(),
       historico => const HistoricoConsultasTela(),
       agendamento => AgendamentoTela(

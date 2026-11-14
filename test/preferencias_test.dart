@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:gaspo_front/app/localizacao.dart';
 import 'package:gaspo_front/app/rotas.dart';
 import 'package:gaspo_front/app/tema.dart';
+import 'package:gaspo_front/servicos/notificacao_service.dart';
 import 'package:gaspo_front/servicos/preferencias.dart';
 import 'package:gaspo_front/telas/notificacoes/notificacoes_tela.dart';
 import 'package:gaspo_front/telas/perfil/perfil_tela.dart';
@@ -80,16 +81,20 @@ void main() {
     expect(_brilho(tester), Brightness.light);
   });
 
-  testWidgets('Modo Silencioso esconde o contador e os alertas', (tester) async {
+  testWidgets('Modo Silencioso esconde o contador e os destaques', (tester) async {
     _preferenciasNovas();
-    await _abrir(tester, const NotificacoesTela());
-    expect(find.text('1'), findsOneWidget); // contador do sino
-    expect(find.byIcon(Icons.priority_high), findsNWidgets(2)); // alertas vermelhos
+    final notificacoes = NotificacaoServiceLocal()
+      ..notificar(titulo: 'Consulta agendada', mensagem: 'Sua consulta foi agendada.')
+      ..notificar(titulo: 'Avalie seu atendimento', mensagem: 'Conte como foi.')
+      ..notificar(titulo: 'Consulta confirmada', mensagem: 'Confirmada.', lida: true);
+    await _abrir(tester, NotificacoesTela(service: notificacoes));
+    expect(find.text('2'), findsOneWidget); // contador do sino
+    expect(find.byKey(const ValueKey('nao-lida')), findsNWidgets(2));
 
     await Preferencias.instancia.definirModoSilencioso(true);
     await tester.pumpAndSettle();
-    expect(find.text('1'), findsNothing);
-    expect(find.byIcon(Icons.priority_high), findsNothing);
+    expect(find.text('2'), findsNothing);
+    expect(find.byKey(const ValueKey('nao-lida')), findsNothing);
     expect(find.text('Modo silencioso ligado: alertas ocultos.'), findsOneWidget);
     // As notificações continuam na lista.
     expect(find.text('Avalie seu atendimento'), findsOneWidget);
@@ -97,7 +102,7 @@ void main() {
     await tester.tap(find.text('Desligar'));
     await tester.pumpAndSettle();
     expect(Preferencias.instancia.modoSilencioso, isFalse);
-    expect(find.byIcon(Icons.priority_high), findsNWidgets(2));
+    expect(find.byKey(const ValueKey('nao-lida')), findsNWidgets(2));
   });
 
   testWidgets('o interruptor do Perfil liga o Modo Silencioso', (tester) async {

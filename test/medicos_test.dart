@@ -116,6 +116,8 @@ void main() {
     // A lista do paciente vem do mesmo serviço (app novo, sem reaproveitar a navegação).
     await tester.pumpWidget(const SizedBox());
     await _abrir(tester, const EspecialistasTela());
+    await tester.enterText(find.byType(TextField), 'ana souza');
+    await tester.pumpAndSettle();
     expect(find.text('Dra. Ana Souza'), findsOneWidget);
     expect(find.text('Sem avaliações'), findsOneWidget);
   });

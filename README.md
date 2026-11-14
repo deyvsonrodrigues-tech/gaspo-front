@@ -114,6 +114,8 @@ lib/
 ├── dados/dados_exemplo.dart   # Dados fixos até a integração com a API
 ├── servicos/                  # Acesso aos dados (hoje em memória; depois, a Gaspo-api)
 │   ├── preferencias.dart      # Modo Escuro e Modo Silencioso salvos no aparelho
+│   ├── foto_usuario.dart      # Foto do usuário salva no aparelho
+│   ├── notificacao_service.dart # /api/notificacoes: listar, não lidas, marcar como lida
 │   ├── agenda_service.dart    # /api/agendas: gerar grade, listar, atualizar, remover
 │   ├── consulta_service.dart  # /api/consultas: horários livres, agendar, ativas, histórico, cancelar
 │   ├── avaliacao_service.dart # /api/avaliacoes: avaliar e listar por profissional
@@ -135,6 +137,7 @@ lib/
     ├── notificacoes/          # Notificações                         (repo Telas-Projeto-Integrador)
     ├── perfil/                # Perfil                               (repo Telas-Projeto-Integrador)
     ├── agendamento/           # Agendamento de consultas (paciente)
+    ├── ajuda/                 # Perguntas frequentes e contatos da unidade
     ├── avisos/                # Feed de Avisos (paciente)               (repo leticiavazx/gaspo_front)
     └── admin/                 # Painel do funcionário: Médicos, Cadastro de Horários e Avisos (Letícia)
 ```
@@ -152,7 +155,7 @@ Início ─┬─ Especialistas → Perfil do profissional ─┬─ Agendar con
         │                                          └─ Avaliar profissional
         ├─ Avaliação → Avaliação do profissional → Início
         ├─ Localização
-        ├─ Notificações (ícone do cabeçalho)
+        ├─ Notificações (sino do cabeçalho, com contador de não lidas)
         └─ Comunicados (Feed de Avisos)
 
 Menu inferior: Início · Agendar · Histórico (em desenvolvimento) · Perfil

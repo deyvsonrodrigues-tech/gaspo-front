@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'app/localizacao.dart';
 import 'app/rotas.dart';
 import 'app/tema.dart';
+import 'servicos/foto_usuario.dart';
 import 'servicos/preferencias.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Preferencias.instancia.carregar();
+  await FotoUsuario.instancia.carregar();
   runApp(const GaspoApp());
 }
 

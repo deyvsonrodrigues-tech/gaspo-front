@@ -4,6 +4,7 @@ import '../dados/dados_exemplo.dart';
 import '../modelos/agenda.dart';
 import '../modelos/consulta.dart';
 import 'agenda_service.dart';
+import 'notificacao_service.dart';
 import 'profissional_service.dart';
 
 /// Erro de regra de negócio, com a mesma mensagem que a API devolve.
@@ -60,26 +61,29 @@ class ConsultaServiceLocal implements ConsultaService {
   ConsultaServiceLocal(this._agenda, {DateTime Function()? agora})
       : _agora = agora ?? DateTime.now;
 
+  /// Consultas de exemplo já encerradas: (profissional, dias atrás, hora, minuto, status).
+  static final exemplosEncerrados = [
+    (profissionais[0], -12, 14, 30, StatusConsulta.finalizada),
+    (profissionais[1], -25, 11, 30, StatusConsulta.cancelada),
+    (profissionais[2], -40, 7, 0, StatusConsulta.finalizada),
+  ];
+
   /// Consultas de exemplo já encerradas, para o Histórico e o Painel não
   /// abrirem vazios enquanto o app não usa a API. Não ocupam a agenda.
   factory ConsultaServiceLocal.comExemplos(AgendaService agenda, {DateTime? hoje}) {
     final service = ConsultaServiceLocal(agenda);
     final base = DateUtils.dateOnly(hoje ?? DateTime.now());
-    final exemplos = [
-      (profissionais[0], -12, 14, 30, StatusConsulta.finalizada),
-      (profissionais[1], -25, 11, 30, StatusConsulta.cancelada),
-      (profissionais[2], -40, 7, 0, StatusConsulta.finalizada),
-    ];
-    for (final (profissional, dias, hora, minuto, status) in exemplos) {
+    for (final (profissional, dias, hora, minuto, status) in exemplosEncerrados) {
       final dia = DateUtils.addDaysToDate(base, dias);
-      service._consultas.add(Consulta(
+      final consulta = Consulta(
         id: service._proximoId++,
         dataHora: DateTime(dia.year, dia.month, dia.day, hora, minuto),
         status: status,
         profissionalId: profissional.id,
         nomeProfissional: profissional.nome,
         especialidadeProfissional: profissional.especialidade,
-      ));
+      );
+      service._consultas.add(consulta);
     }
     return service;
   }
@@ -131,11 +135,14 @@ class ConsultaServiceLocal implements ConsultaService {
       especialidadeProfissional: profissional.especialidade,
     );
     _consultas.add(consulta);
+    _notificar(consulta, StatusConsulta.agendada);
     return consulta;
   }
 
-  bool _ativa(Consulta c) =>
-      c.status == StatusConsulta.agendada && !c.dataHora.isBefore(_agora());
+  /// Agendadas ou confirmadas que ainda vão acontecer (como na API).
+  static bool _emAberto(StatusConsulta s) => s == StatusConsulta.agendada || s == StatusConsulta.confirmada;
+
+  bool _ativa(Consulta c) => _emAberto(c.status) && !c.dataHora.isBefore(_agora());
 
   @override
   Future<List<Consulta>> listarAtivas() async =>
@@ -150,8 +157,8 @@ class ConsultaServiceLocal implements ConsultaService {
     final indice = _consultas.indexWhere((c) => c.id == id);
     if (indice == -1) throw const AgendamentoException('Consulta não encontrada');
     final consulta = _consultas[indice];
-    if (consulta.status != StatusConsulta.agendada) {
-      throw const AgendamentoException('Somente consultas agendadas podem ser canceladas');
+    if (!_emAberto(consulta.status)) {
+      throw const AgendamentoException('Somente consultas agendadas ou confirmadas podem ser canceladas');
     }
     if (!consulta.dataHora.isAfter(_agora())) {
       throw const AgendamentoException('Não é possível cancelar consulta antiga ou já realizada');
@@ -187,7 +194,16 @@ class ConsultaServiceLocal implements ConsultaService {
     if (novoStatus == StatusConsulta.cancelada) await _liberarHorario(consulta);
     final atualizada = consulta.copyWith(status: novoStatus);
     _consultas[indice] = atualizada;
+    _notificar(atualizada, novoStatus);
     return atualizada;
+  }
+
+  // Na API, o servidor cria essas notificações; aqui, o serviço local faz isso.
+  void _notificar(Consulta consulta, StatusConsulta status) {
+    final notificacoes = NotificacaoService.instancia;
+    final texto = textoNotificacaoConsulta(status, consulta.nomeProfissional, consulta.dataHora);
+    if (notificacoes is! NotificacaoServiceLocal || texto == null) return;
+    notificacoes.notificar(titulo: texto.titulo, mensagem: texto.mensagem, consultaId: consulta.id);
   }
 
   /// Devolve à agenda o horário ocupado pela consulta.

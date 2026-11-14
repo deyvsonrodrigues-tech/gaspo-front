@@ -1,68 +1,154 @@
 import 'package:flutter/material.dart';
 
+import '../../app/rotas.dart';
 import '../../app/tema.dart';
 import '../../dados/dados_exemplo.dart';
+import '../../modelos/notificacao.dart';
+import '../../servicos/notificacao_service.dart';
 import '../../servicos/preferencias.dart';
+import '../../utils/formatadores.dart';
+import '../../utils/mensagens.dart';
+import '../../widgets/avatar_usuario.dart';
 import '../../widgets/gaspo_bottom_nav.dart';
 
-class NotificacoesTela extends StatelessWidget {
-  const NotificacoesTela({super.key});
+/// Central de Notificações do paciente (criadas quando as consultas mudam).
+class NotificacoesTela extends StatefulWidget {
+  /// Permite injetar outra implementação (ex.: nos testes).
+  final NotificacaoService? service;
 
-  Widget _criarItemNotificacao(
-    BuildContext context,
-    String titulo,
-    String tempo, {
-    bool temAlerta = false,
-    bool silencioso = false,
-  }) {
-    // No Modo Silencioso o alerta vermelho some (a notificação continua na lista).
-    final mostrarAlerta = temAlerta && !silencioso;
+  const NotificacoesTela({super.key, this.service});
+
+  @override
+  State<NotificacoesTela> createState() => _NotificacoesTelaState();
+}
+
+class _NotificacoesTelaState extends State<NotificacoesTela> {
+  late final NotificacaoService _service = widget.service ?? NotificacaoService.instancia;
+
+  List<Notificacao> _notificacoes = [];
+  bool _carregando = true;
+  bool _erro = false;
+
+  int get _naoLidas => _notificacoes.where((n) => !n.lida).length;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregar();
+  }
+
+  Future<void> _carregar() async {
+    setState(() {
+      _carregando = true;
+      _erro = false;
+    });
+    try {
+      final lista = await _service.listar();
+      if (mounted) setState(() => _notificacoes = lista);
+    } catch (_) {
+      if (mounted) setState(() => _erro = true);
+    } finally {
+      if (mounted) setState(() => _carregando = false);
+    }
+  }
+
+  Future<void> _abrir(Notificacao notificacao) async {
+    if (!notificacao.lida) {
+      try {
+        await _service.marcarComoLida(notificacao.id);
+        if (!mounted) return;
+        setState(() {
+          final i = _notificacoes.indexWhere((n) => n.id == notificacao.id);
+          if (i != -1) _notificacoes[i] = notificacao.copyWith(lida: true);
+        });
+      } catch (_) {
+        if (mounted) mostrarMensagem(context, 'Não foi possível atualizar a notificação.');
+      }
+    }
+    if (notificacao.pedeAvaliacao && mounted) {
+      Navigator.pushNamed(context, Rotas.avaliacaoConsulta);
+    }
+  }
+
+  Future<void> _marcarTodas() async {
+    try {
+      await _service.marcarTodasComoLidas();
+      if (!mounted) return;
+      setState(() => _notificacoes = [for (final n in _notificacoes) n.copyWith(lida: true)]);
+    } catch (_) {
+      if (mounted) mostrarMensagem(context, 'Não foi possível atualizar as notificações.');
+    }
+  }
+
+  /// Ícone conforme o tipo de notificação.
+  IconData _icone(Notificacao n) => switch (n.titulo) {
+        'Consulta agendada' => Icons.event_available,
+        'Consulta confirmada' => Icons.check_circle_outline,
+        'Consulta cancelada' => Icons.event_busy,
+        'Avalie seu atendimento' => Icons.star_outline,
+        _ => Icons.mark_chat_unread_outlined,
+      };
+
+  String _quando(DateTime data) {
+    final hoje = DateUtils.dateOnly(DateTime.now());
+    final dia = DateUtils.dateOnly(data);
+    if (dia == hoje) return formatarHora(TimeOfDay.fromDateTime(data));
+    if (dia == DateUtils.addDaysToDate(hoje, -1)) return 'Ontem';
+    return formatarData(data).substring(0, data.year == hoje.year ? 5 : 10);
+  }
+
+  Widget _criarItemNotificacao(BuildContext context, Notificacao n, {required bool silencioso}) {
+    // No Modo Silencioso os destaques de "não lida" somem (a notificação continua na lista).
+    final destacar = !n.lida && !silencioso;
     return Container(
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: context.cores.borda, width: 0.5),
-        ),
+        border: Border(bottom: BorderSide(color: context.cores.borda, width: 0.5)),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-        leading: const CircleAvatar(
-          backgroundColor: GaspoCores.azulClaro,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+        leading: CircleAvatar(
+          backgroundColor: n.lida ? context.cores.superficieAlternativa : GaspoCores.azulClaro,
           radius: 22,
-          child: Icon(
-            Icons.mark_chat_unread_outlined,
-            color: Colors.white,
-            size: 22,
-          ),
+          child: Icon(_icone(n), color: n.lida ? context.cores.textoSecundario : Colors.white, size: 22),
         ),
         title: Text(
-          titulo,
-          style: TextStyle(fontSize: 15, color: context.cores.texto),
+          n.titulo,
+          style: TextStyle(
+            fontSize: 15,
+            color: context.cores.texto,
+            fontWeight: destacar ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
+        subtitle: Text(
+          n.mensagem,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: 13, color: context.cores.textoSecundario),
+        ),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              tempo,
-              style: TextStyle(
-                fontSize: 12,
-                color: context.cores.textoSecundario,
-              ),
+              _quando(n.dataEnvio),
+              style: TextStyle(fontSize: 12, color: context.cores.textoSecundario),
             ),
-            if (mostrarAlerta) ...[
-              const SizedBox(width: 8),
-              const CircleAvatar(
-                backgroundColor: Colors.red,
-                radius: 10,
-                child: Icon(Icons.priority_high, color: Colors.white, size: 14),
-              ),
-            ] else ...[
-              const SizedBox(
-                width: 28,
-              ), // Espaçamento para alinhar com os que têm alerta
-            ],
+            const SizedBox(height: 6),
+            if (destacar)
+              Semantics(
+                key: const ValueKey('nao-lida'),
+                label: 'Não lida',
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: const BoxDecoration(color: GaspoCores.azul, shape: BoxShape.circle),
+                ),
+              )
+            else
+              const SizedBox(height: 10),
           ],
         ),
-        onTap: () {},
+        onTap: () => _abrir(n),
       ),
     );
   }
@@ -71,8 +157,7 @@ class NotificacoesTela extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: Preferencias.instancia,
-      builder: (context, _) =>
-          _buildTela(context, Preferencias.instancia.modoSilencioso),
+      builder: (context, _) => _buildTela(context, Preferencias.instancia.modoSilencioso),
     );
   }
 
@@ -86,24 +171,16 @@ class NotificacoesTela extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.notifications_off_outlined,
-            size: 20,
-            color: context.cores.textoSecundario,
-          ),
+          Icon(Icons.notifications_off_outlined, size: 20, color: context.cores.textoSecundario),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               'Modo silencioso ligado: alertas ocultos.',
-              style: TextStyle(
-                fontSize: 13,
-                color: context.cores.textoSecundario,
-              ),
+              style: TextStyle(fontSize: 13, color: context.cores.textoSecundario),
             ),
           ),
           TextButton(
-            onPressed: () =>
-                Preferencias.instancia.definirModoSilencioso(false),
+            onPressed: () => Preferencias.instancia.definirModoSilencioso(false),
             child: const Text('Desligar'),
           ),
         ],
@@ -111,7 +188,41 @@ class NotificacoesTela extends StatelessWidget {
     );
   }
 
+  Widget _buildLista(BuildContext context, bool silencioso) {
+    if (_carregando) return const Center(child: CircularProgressIndicator());
+    if (_erro) {
+      return Center(
+        child: TextButton.icon(
+          onPressed: _carregar,
+          icon: const Icon(Icons.refresh),
+          label: const Text('Não foi possível carregar. Tentar de novo'),
+        ),
+      );
+    }
+    if (_notificacoes.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            'Você não tem notificações. Elas aparecem aqui quando suas consultas mudam.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: context.cores.textoSecundario),
+          ),
+        ),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: _carregar,
+      child: ListView(
+        children: [
+          for (final n in _notificacoes) _criarItemNotificacao(context, n, silencioso: silencioso),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTela(BuildContext context, bool silencioso) {
+    final naoLidas = _naoLidas;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -130,25 +241,12 @@ class NotificacoesTela extends StatelessWidget {
                     onPressed: () {
                       if (Navigator.canPop(context)) Navigator.pop(context);
                     },
-                    icon: const Icon(
-                      Icons.keyboard_double_arrow_left,
-                      color: Colors.white,
-                      size: 30,
-                    ),
+                    icon: const Icon(Icons.keyboard_double_arrow_left, color: Colors.white, size: 30),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
                   const SizedBox(width: 10),
-                  // TODO: substituir pela foto do usuário.
-                  CircleAvatar(
-                    radius: 25,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.person,
-                      size: 30,
-                      color: context.cores.cabecalho,
-                    ),
-                  ),
+                  AvatarUsuario(raio: 25, corIcone: context.cores.cabecalho),
                   const SizedBox(width: 15),
                   Expanded(
                     child: Column(
@@ -156,18 +254,11 @@ class NotificacoesTela extends StatelessWidget {
                       children: [
                         const Text(
                           'Bem-vindo ao GASPO',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           usuarioLogado.nome,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
+                          style: const TextStyle(color: Colors.white70, fontSize: 14),
                         ),
                       ],
                     ),
@@ -177,13 +268,11 @@ class NotificacoesTela extends StatelessWidget {
                       Stack(
                         children: [
                           Icon(
-                            silencioso
-                                ? Icons.notifications_off_outlined
-                                : Icons.notifications_none,
+                            silencioso ? Icons.notifications_off_outlined : Icons.notifications_none,
                             color: Colors.white,
                             size: 30,
                           ),
-                          if (!silencioso)
+                          if (!silencioso && naoLidas > 0)
                             Positioned(
                               right: 0,
                               top: 0,
@@ -193,17 +282,10 @@ class NotificacoesTela extends StatelessWidget {
                                   color: Colors.red,
                                   shape: BoxShape.circle,
                                 ),
-                                constraints: const BoxConstraints(
-                                  minWidth: 14,
-                                  minHeight: 14,
-                                ),
-                                child: const Text(
-                                  '1',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+                                child: Text(
+                                  naoLidas > 9 ? '9+' : '$naoLidas',
+                                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
@@ -222,75 +304,25 @@ class NotificacoesTela extends StatelessWidget {
 
             if (silencioso) _avisoSilencioso(context),
 
-            // LISTA DE NOTIFICAÇÕES
-            Expanded(
-              child: ListView(
-                children: [
-                  _criarItemNotificacao(
-                    context,
-                    'Consulta reagendada',
-                    '08:00',
-                    silencioso: silencioso,
+            if (naoLidas > 0)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: TextButton.icon(
+                    onPressed: _marcarTodas,
+                    icon: const Icon(Icons.done_all, size: 18),
+                    label: const Text('Marcar todas como lidas'),
                   ),
-                  _criarItemNotificacao(
-                    context,
-                    'Consulta reagendada',
-                    '07:30',
-                    temAlerta: true,
-                    silencioso: silencioso,
-                  ),
-                  _criarItemNotificacao(
-                    context,
-                    'Avalie seu atendimento',
-                    '23/04',
-                    temAlerta: true,
-                    silencioso: silencioso,
-                  ),
-                  _criarItemNotificacao(
-                    context,
-                    'Consulta próxima de iniciar',
-                    '23/04',
-                    silencioso: silencioso,
-                  ),
-                  _criarItemNotificacao(
-                    context,
-                    'Lembrete de consulta',
-                    '23/04',
-                    silencioso: silencioso,
-                  ),
-                  _criarItemNotificacao(
-                    context,
-                    'Consulta confirmada',
-                    '12/05/26',
-                    silencioso: silencioso,
-                  ),
-                  _criarItemNotificacao(
-                    context,
-                    'Médico disponível para atendimento',
-                    '08/12/25',
-                    silencioso: silencioso,
-                  ),
-                  _criarItemNotificacao(
-                    context,
-                    'Consulta confirmada',
-                    '12/05/26',
-                    silencioso: silencioso,
-                  ),
-                  _criarItemNotificacao(
-                    context,
-                    'Médico disponível para atendimento',
-                    '08/12/25',
-                    silencioso: silencioso,
-                  ),
-                ],
+                ),
               ),
-            ),
+
+            // LISTA DE NOTIFICAÇÕES
+            Expanded(child: _buildLista(context, silencioso)),
           ],
         ),
       ),
-      bottomNavigationBar: const GaspoBottomNav(
-        currentIndex: GaspoBottomNav.inicio,
-      ),
+      bottomNavigationBar: const GaspoBottomNav(currentIndex: GaspoBottomNav.inicio),
     );
   }
 }

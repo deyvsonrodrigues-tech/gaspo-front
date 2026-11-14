@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../app/rotas.dart';
 import '../../app/tema.dart';
 import '../../dados/dados_exemplo.dart';
 import '../../servicos/preferencias.dart';
 import '../../utils/sessao.dart';
+import '../../widgets/avatar_usuario.dart';
 import '../../widgets/gaspo_bottom_nav.dart';
 
 class PerfilTela extends StatelessWidget {
@@ -21,6 +23,7 @@ class PerfilTela extends StatelessWidget {
     bool isSwitch = false,
     bool switchValue = false,
     ValueChanged<bool>? onSwitch,
+    VoidCallback? onTap,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -30,6 +33,7 @@ class PerfilTela extends StatelessWidget {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
+        onTap: onTap,
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -136,16 +140,8 @@ class PerfilTela extends StatelessWidget {
                     constraints: const BoxConstraints(),
                   ),
                   const SizedBox(width: 15),
-                  // TODO: substituir pela foto do usuário.
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.person,
-                      size: 36,
-                      color: _corTitulo(context),
-                    ),
-                  ),
+                  // Foto do usuário: tocar abre câmera, galeria ou remover.
+                  const AvatarUsuario(raio: 30, editavel: true),
                   const SizedBox(width: 15),
                   Expanded(
                     child: Column(
@@ -260,6 +256,13 @@ class PerfilTela extends StatelessWidget {
                         ],
                       );
                     },
+                  ),
+                  _criarItemLista(
+                    context,
+                    icone: Icons.help_outline,
+                    titulo: 'Ajuda',
+                    subtitulo: 'Perguntas frequentes e contatos da unidade',
+                    onTap: () => Navigator.pushNamed(context, Rotas.ajuda),
                   ),
                   _criarItemSair(context),
 

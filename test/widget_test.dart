@@ -172,7 +172,9 @@ void main() {
 
       await tester.tap(find.byIcon(Icons.notifications_none));
       await tester.pumpAndSettle();
-      expect(find.text('Lembrete de consulta'), findsOneWidget);
+      // Notificações das consultas de exemplo (2 finalizadas e 1 cancelada).
+      expect(find.text('Avalie seu atendimento'), findsNWidgets(2));
+      expect(find.text('Consulta cancelada'), findsOneWidget);
     });
 
     testWidgets('Início em tela larga mostra os 4 cartões em uma linha', (tester) async {

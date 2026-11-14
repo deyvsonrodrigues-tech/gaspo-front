@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
 import '../../dados/dados_exemplo.dart';
+import '../../widgets/avatar_usuario.dart';
 import '../../widgets/gaspo_bottom_nav.dart';
+import '../../widgets/sino_notificacoes.dart';
 
 class HomeTela extends StatelessWidget {
   const HomeTela({super.key});
@@ -32,15 +34,7 @@ class HomeTela extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const CircleAvatar(
-                        radius: 28,
-                        backgroundColor: Colors.white24,
-                        child: Icon(
-                          Icons.person,
-                          size: 34,
-                          color: Colors.white,
-                        ),
-                      ),
+                      const AvatarUsuario(raio: 28, fundo: Colors.white24, corIcone: Colors.white),
                       const SizedBox(width: 14),
                       Expanded(
                         child: Column(
@@ -65,27 +59,7 @@ class HomeTela extends StatelessWidget {
                           ],
                         ),
                       ),
-                      InkWell(
-                        onTap: () =>
-                            Navigator.pushNamed(context, Rotas.notificacoes),
-                        borderRadius: BorderRadius.circular(8),
-                        child: const Column(
-                          children: [
-                            Icon(
-                              Icons.notifications_none,
-                              color: Colors.white,
-                              size: 26,
-                            ),
-                            Text(
-                              'Notificações',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 9,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      const SinoNotificacoes(),
                     ],
                   ),
                 ],

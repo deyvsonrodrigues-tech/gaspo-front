@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
 import '../../modelos/perfil_acesso.dart';
-import '../../utils/mensagens.dart';
 
 class EntradaTela extends StatelessWidget {
   const EntradaTela({super.key});
@@ -120,7 +119,7 @@ class EntradaTela extends StatelessWidget {
               // BOTÃO AJUDA
               ElevatedButton(
                 onPressed: () {
-                  mostrarEmDesenvolvimento(context, 'Ajuda');
+                  Navigator.pushNamed(context, Rotas.ajuda);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: GaspoCores.azul,
