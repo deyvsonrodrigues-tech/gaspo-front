@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
-import '../../dados/dados_exemplo.dart';
+import '../../servicos/sessao_usuario.dart';
 import '../../widgets/avatar_usuario.dart';
 import '../../widgets/gaspo_bottom_nav.dart';
 import '../../widgets/sino_notificacoes.dart';
@@ -50,7 +50,7 @@ class HomeTela extends StatelessWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              usuarioLogado.nome,
+                              usuarioAtual.nome,
                               style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14,

@@ -55,7 +55,7 @@ class Consulta {
       dataHora: DateTime.parse(json['data'] as String).toLocal(),
       status: StatusConsulta.daApi(json['status'] as String),
       profissionalId: json['profissionalId'] as int,
-      nomeProfissional: json['nomeProfissional'] as String,
+      nomeProfissional: json['nomeProfissional'] as String? ?? '',
       especialidadeProfissional: json['especialidadeProfissional'] as String?,
       nomeUnidade: json['nomeUnidade'] as String?,
       enderecoUnidade: json['enderecoUnidade'] as String?,

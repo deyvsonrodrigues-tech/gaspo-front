@@ -1,5 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Acesso à Gaspo-api; a API local usa http (sem TLS). -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
+        android:usesCleartextTraffic="true"
         android:label="GASPO"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

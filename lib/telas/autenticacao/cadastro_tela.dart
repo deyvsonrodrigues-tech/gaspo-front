@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
+import '../../modelos/usuario.dart';
+import '../../servicos/auth_service.dart';
 import '../../utils/mensagens.dart';
 import '../../utils/validadores.dart';
 import '../../widgets/campos_formulario.dart';
@@ -34,6 +36,7 @@ class _CadastroTelaState extends State<CadastroTela> {
   final _mascaraTelefone = mascaraTelefone();
 
   bool mostrarSenha = false;
+  bool _enviando = false;
 
   @override
   void dispose() {
@@ -48,11 +51,29 @@ class _CadastroTelaState extends State<CadastroTela> {
   }
 
   // BOTÃO CRIAR CONTA
-  void cadastrar() {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> cadastrar() async {
+    if (_enviando || !_formKey.currentState!.validate()) return;
 
-    // TODO: enviar para /api/pacientes/cadastro quando a API estiver disponível.
-    mostrarMensagem(context, 'Cadastro em desenvolvimento!');
+    setState(() => _enviando = true);
+    try {
+      await AuthService.instancia.cadastrar(DadosCadastro(
+        nome: nome.text,
+        cpf: cpf.text,
+        dataNascimento: lerData(nascimento.text),
+        telefone: telefone.text,
+        email: email.text,
+        senha: senha.text,
+      ));
+    } on AuthException catch (e) {
+      if (!mounted) return;
+      setState(() => _enviando = false);
+      mostrarMensagem(context, e.mensagem);
+      return;
+    }
+    if (!mounted) return;
+
+    mostrarMensagem(context, 'Conta criada! Entre com seu CPF e sua senha.');
+    Navigator.pushReplacementNamed(context, Rotas.login);
   }
 
   String? _validarSenha(String? valor) {
@@ -204,7 +225,7 @@ class _CadastroTelaState extends State<CadastroTela> {
                     const SizedBox(height: 28),
 
                     // BOTÃO CRIAR CONTA
-                    BotaoPrincipal(texto: 'Criar conta', onPressed: cadastrar),
+                    BotaoPrincipal(texto: 'Criar conta', onPressed: cadastrar, carregando: _enviando),
                     const SizedBox(height: 16),
 
                     // JÁ TEM CONTA

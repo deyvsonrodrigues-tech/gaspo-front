@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
 import '../../modelos/perfil_acesso.dart';
+import '../../servicos/auth_service.dart';
+import '../../utils/mensagens.dart';
 import '../../utils/validadores.dart';
 import '../../widgets/campos_formulario.dart';
 import '../../widgets/gaspo_header.dart';
@@ -23,6 +25,7 @@ class _LoginTelaState extends State<LoginTela> {
   final _mascaraCpf = mascaraCpf();
 
   bool senhaOculta = true;
+  bool _entrando = false;
 
   bool get _funcionario => widget.perfil == PerfilAcesso.funcionario;
 
@@ -33,11 +36,24 @@ class _LoginTelaState extends State<LoginTela> {
     super.dispose();
   }
 
-  void entrar() {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> entrar() async {
+    if (_entrando || !_formKey.currentState!.validate()) return;
 
-    // TODO: autenticar CPF e senha quando a API estiver disponível
-    // (hoje o login da API usa e-mail; precisa passar a aceitar CPF).
+    setState(() => _entrando = true);
+    try {
+      await AuthService.instancia.entrar(
+        cpf: cpfController.text,
+        senha: senhaController.text,
+        perfil: widget.perfil,
+      );
+    } on AuthException catch (e) {
+      if (!mounted) return;
+      setState(() => _entrando = false);
+      mostrarMensagem(context, e.mensagem);
+      return;
+    }
+    if (!mounted) return;
+
     // Funcionário vai para o Painel Admin; paciente, para o Início.
     final destino = _funcionario ? Rotas.painelFuncionario : Rotas.home;
     Navigator.pushNamedAndRemoveUntil(context, destino, (_) => false);
@@ -138,7 +154,7 @@ class _LoginTelaState extends State<LoginTela> {
                     const SizedBox(height: 28),
 
                     // BOTÃO DE ENTRAR
-                    BotaoPrincipal(texto: 'Entrar', onPressed: entrar),
+                    BotaoPrincipal(texto: 'Entrar', onPressed: entrar, carregando: _entrando),
                     const SizedBox(height: 32),
 
                     // CRIAR CONTA (só pacientes criam conta pelo app)

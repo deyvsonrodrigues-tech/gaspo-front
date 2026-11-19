@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
-import '../../dados/dados_exemplo.dart';
+import '../../servicos/sessao_usuario.dart';
 import '../../servicos/preferencias.dart';
 import '../../utils/sessao.dart';
 import '../../widgets/avatar_usuario.dart';
@@ -12,8 +12,7 @@ class PerfilTela extends StatelessWidget {
   const PerfilTela({super.key});
 
   /// Títulos do Perfil: azul do cabeçalho no tema claro; azul claro no escuro.
-  Color _corTitulo(BuildContext context) =>
-      context.temaEscuro ? context.cores.titulo : context.cores.cabecalho;
+  Color _corTitulo(BuildContext context) => context.temaEscuro ? context.cores.titulo : context.cores.cabecalho;
 
   Widget _criarItemLista(
     BuildContext context, {
@@ -27,33 +26,21 @@ class PerfilTela extends StatelessWidget {
   }) {
     return Container(
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: context.cores.borda, width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: context.cores.borda, width: 1)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
         onTap: onTap,
         leading: Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: GaspoCores.azul,
-            borderRadius: BorderRadius.circular(8),
-          ),
+          decoration: BoxDecoration(color: GaspoCores.azul, borderRadius: BorderRadius.circular(8)),
           child: Icon(icone, color: Colors.white, size: 20),
         ),
         title: Text(
           titulo,
-          style: TextStyle(
-            fontSize: 13,
-            color: _corTitulo(context),
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(fontSize: 13, color: _corTitulo(context), fontWeight: FontWeight.w500),
         ),
-        subtitle: Text(
-          subtitulo,
-          style: TextStyle(fontSize: 11, color: context.cores.textoSecundario),
-        ),
+        subtitle: Text(subtitulo, style: TextStyle(fontSize: 11, color: context.cores.textoSecundario)),
         trailing: isSwitch
             ? Switch(
                 value: switchValue,
@@ -63,15 +50,8 @@ class PerfilTela extends StatelessWidget {
               )
             : Container(
                 padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: GaspoCores.azul,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Icon(
-                  Icons.keyboard_arrow_right,
-                  color: Colors.white,
-                  size: 16,
-                ),
+                decoration: BoxDecoration(color: GaspoCores.azul, borderRadius: BorderRadius.circular(4)),
+                child: const Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 16),
               ),
       ),
     );
@@ -80,28 +60,19 @@ class PerfilTela extends StatelessWidget {
   Widget _criarItemSair(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: context.cores.borda, width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: context.cores.borda, width: 1)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
         onTap: () => sairDaConta(context),
         leading: Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.red,
-            borderRadius: BorderRadius.circular(8),
-          ),
+          decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(8)),
           child: const Icon(Icons.logout, color: Colors.white, size: 20),
         ),
         title: const Text(
           'Sair da conta',
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.red,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(fontSize: 13, color: Colors.red, fontWeight: FontWeight.w500),
         ),
         subtitle: Text(
           'Voltar para a tela de login',
@@ -121,21 +92,14 @@ class PerfilTela extends StatelessWidget {
             Container(
               margin: const EdgeInsets.all(15),
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 25),
-              decoration: BoxDecoration(
-                color: context.cores.cabecalho,
-                borderRadius: BorderRadius.circular(20),
-              ),
+              decoration: BoxDecoration(color: context.cores.cabecalho, borderRadius: BorderRadius.circular(20)),
               child: Row(
                 children: [
                   IconButton(
                     onPressed: () {
                       if (Navigator.canPop(context)) Navigator.pop(context);
                     },
-                    icon: const Icon(
-                      Icons.keyboard_double_arrow_left,
-                      color: Colors.white,
-                      size: 30,
-                    ),
+                    icon: const Icon(Icons.keyboard_double_arrow_left, color: Colors.white, size: 30),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -148,17 +112,10 @@ class PerfilTela extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          usuarioLogado.nome,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          usuarioAtual.nome,
+                          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                         ),
-                        const Text(
-                          'Online',
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
-                        ),
+                        const Text('Online', style: TextStyle(color: Colors.white70, fontSize: 14)),
                       ],
                     ),
                   ),
@@ -174,56 +131,40 @@ class PerfilTela extends StatelessWidget {
                   // SECÇÃO: SOBRE MIM
                   Text(
                     'Sobre Mim',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: _corTitulo(context),
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _corTitulo(context)),
                   ),
                   const SizedBox(height: 10),
-                  _criarItemLista(
-                    context,
-                    icone: Icons.person,
-                    titulo: usuarioLogado.nome,
-                    subtitulo: 'Nome',
-                  ),
+                  _criarItemLista(context, icone: Icons.person, titulo: usuarioAtual.nome, subtitulo: 'Nome'),
                   _criarItemLista(
                     context,
                     icone: Icons.mail,
-                    titulo: usuarioLogado.email,
+                    titulo: usuarioAtual.email ?? 'Não informado',
                     subtitulo: 'E-mail',
                   ),
                   _criarItemLista(
                     context,
                     icone: Icons.phone,
-                    titulo: usuarioLogado.telefone,
+                    titulo: usuarioAtual.telefone ?? 'Não informado',
                     subtitulo: 'Número de Telefone',
                   ),
-                  _criarItemLista(
-                    context,
-                    icone: Icons.location_on,
-                    titulo: usuarioLogado.endereco,
-                    subtitulo: 'Endereço',
-                  ),
+                  // A API não guarda endereço; aparece só no modo local.
+                  if (usuarioAtual.endereco != null)
+                    _criarItemLista(
+                      context,
+                      icone: Icons.location_on,
+                      titulo: usuarioAtual.endereco!,
+                      subtitulo: 'Endereço',
+                    ),
 
                   const SizedBox(height: 25),
 
                   // SECÇÃO: CONFIGURAÇÕES
                   Text(
                     'Configurações',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: _corTitulo(context),
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _corTitulo(context)),
                   ),
                   const SizedBox(height: 10),
-                  _criarItemLista(
-                    context,
-                    icone: Icons.language,
-                    titulo: 'Português',
-                    subtitulo: 'Linguagem',
-                  ),
+                  _criarItemLista(context, icone: Icons.language, titulo: 'Português', subtitulo: 'Linguagem'),
                   // Preferências salvas no aparelho; a tela acompanha as mudanças.
                   ListenableBuilder(
                     listenable: Preferencias.instancia,
@@ -246,9 +187,7 @@ class PerfilTela extends StatelessWidget {
                             context,
                             icone: Icons.dark_mode,
                             titulo: 'Modo Escuro',
-                            subtitulo: preferencias.modoEscuro
-                                ? 'Tema escuro'
-                                : 'Tema claro',
+                            subtitulo: preferencias.modoEscuro ? 'Tema escuro' : 'Tema claro',
                             isSwitch: true,
                             switchValue: preferencias.modoEscuro,
                             onSwitch: preferencias.definirModoEscuro,
@@ -273,10 +212,7 @@ class PerfilTela extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: Text(
                       'Privacidade & Politica',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: context.cores.textoSecundario,
-                      ),
+                      style: TextStyle(fontSize: 10, color: context.cores.textoSecundario),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -286,9 +222,7 @@ class PerfilTela extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const GaspoBottomNav(
-        currentIndex: GaspoBottomNav.perfil,
-      ),
+      bottomNavigationBar: const GaspoBottomNav(currentIndex: GaspoBottomNav.perfil),
     );
   }
 }

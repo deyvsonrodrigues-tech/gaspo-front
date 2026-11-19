@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app/configuracao_api.dart';
 import 'app/localizacao.dart';
 import 'app/rotas.dart';
 import 'app/tema.dart';
@@ -10,6 +11,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Preferencias.instancia.carregar();
   await FotoUsuario.instancia.carregar();
+  if (!modoLocal) usarApi();
   runApp(const GaspoApp());
 }
 

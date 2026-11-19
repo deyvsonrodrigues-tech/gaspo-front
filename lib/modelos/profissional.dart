@@ -58,6 +58,24 @@ class Profissional {
     );
   }
 
+  /// ProfissionalResponseDTO. A API não manda nota; a tela calcula pelas avaliações.
+  factory Profissional.fromJson(Map<String, dynamic> json) {
+    final endereco = json['enderecoUnidade'] as String?;
+    return Profissional(
+      id: json['id'] as int,
+      nome: json['nome'] as String? ?? '',
+      especialidade: json['especialidade'] as String? ?? '',
+      status: json['status'] == null
+          ? StatusProfissional.ausente
+          : StatusProfissional.daApi(json['status'] as String),
+      email: json['email'] as String?,
+      telefone: json['telefone'] as String?,
+      unidade: endereco == null
+          ? null
+          : UnidadeSaude(nome: json['nomeUnidade'] as String?, endereco: endereco),
+    );
+  }
+
   // O mesmo profissional pode vir de buscas diferentes (ex.: da lista e da
   // API); a identidade é o id.
   @override
@@ -84,4 +102,16 @@ class DadosProfissional {
     this.status = StatusProfissional.presente,
     this.unidade,
   });
+
+  /// ProfissionalRequestDTO (sem unidade: a API deixa em branco).
+  Map<String, dynamic> toJson() {
+    String? limpo(String? valor) => (valor == null || valor.trim().isEmpty) ? null : valor.trim();
+    return {
+      'nome': nome.trim(),
+      'especialidade': limpo(especialidade),
+      'email': limpo(email),
+      'telefone': limpo(telefone),
+      'status': status.valorApi,
+    };
+  }
 }

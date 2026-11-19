@@ -106,13 +106,8 @@ void main() {
       await tester.enterText(campo('Confirmar senha'), 'abc123');
       await tester.ensureVisible(criarConta);
       await tester.tap(criarConta);
-      await tester.pump();
-      expect(find.text('Cadastro em desenvolvimento!'), findsOneWidget);
-
-      final entrar = find.widgetWithText(TextButton, 'Entrar');
-      await tester.ensureVisible(entrar);
-      await tester.tap(entrar);
       await tester.pumpAndSettle();
+      expect(find.text('Conta criada! Entre com seu CPF e sua senha.'), findsOneWidget);
       expect(find.text(_textoLogin), findsOneWidget);
     });
   });

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app/rotas.dart';
+import '../servicos/sessao_usuario.dart';
 
 /// Pergunta se o usuário quer sair e, se sim, volta para o Login.
 Future<void> sairDaConta(BuildContext context) async {
@@ -24,7 +25,7 @@ Future<void> sairDaConta(BuildContext context) async {
   );
   if (confirmado != true || !context.mounted) return;
 
-  // TODO: apagar o token salvo quando o login usar a API.
+  SessaoUsuario.instancia.encerrar();
   // Entrada fica por baixo para a seta de voltar do Login funcionar.
   final navigator = Navigator.of(context);
   navigator.pushNamedAndRemoveUntil(Rotas.entrada, (_) => false);

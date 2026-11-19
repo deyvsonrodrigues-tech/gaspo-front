@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/rotas.dart';
 import '../../app/tema.dart';
-import '../../dados/dados_exemplo.dart';
+import '../../servicos/sessao_usuario.dart';
 import '../../modelos/notificacao.dart';
 import '../../servicos/notificacao_service.dart';
 import '../../servicos/preferencias.dart';
@@ -257,7 +257,7 @@ class _NotificacoesTelaState extends State<NotificacoesTela> {
                           style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          usuarioLogado.nome,
+                          usuarioAtual.nome,
                           style: const TextStyle(color: Colors.white70, fontSize: 14),
                         ),
                       ],

@@ -111,8 +111,8 @@ lib/
 │   ├── rotas.dart             # Rotas nomeadas (Rotas.home, Rotas.perfil, ...)
 │   └── tema.dart              # GaspoCores (paleta única) + ThemeData
 ├── modelos/                   # Usuario, Profissional, UnidadeSaude, HorarioAgenda, Consulta, Avaliacao, PerfilAcesso
-├── dados/dados_exemplo.dart   # Dados fixos até a integração com a API
-├── servicos/                  # Acesso aos dados (hoje em memória; depois, a Gaspo-api)
+├── dados/dados_exemplo.dart   # Dados de exemplo do modo local e dos testes
+├── servicos/                  # Acesso aos dados: Gaspo-api (api/) ou memória (modo local)
 │   ├── preferencias.dart      # Modo Escuro e Modo Silencioso salvos no aparelho
 │   ├── foto_usuario.dart      # Foto do usuário salva no aparelho
 │   ├── notificacao_service.dart # /api/notificacoes: listar, não lidas, marcar como lida
@@ -158,7 +158,7 @@ Início ─┬─ Especialistas → Perfil do profissional ─┬─ Agendar con
         ├─ Notificações (sino do cabeçalho, com contador de não lidas)
         └─ Comunicados (Feed de Avisos)
 
-Menu inferior: Início · Agendar · Histórico (em desenvolvimento) · Perfil
+Menu inferior: Início · Agendar · Histórico · Perfil
 ```
 
 ### Convenções
@@ -176,3 +176,24 @@ flutter analyze
 flutter test
 flutter run -d chrome
 ```
+
+### Conexão com a Gaspo-api
+
+O app usa a [Gaspo-api](https://github.com/pedroh-1/Gaspo-api) (login por CPF com
+token JWT, consultas, agenda, médicos, avisos, avaliações e notificações).
+Os serviços ficam em `lib/servicos/api/`; `lib/app/configuracao_api.dart` liga
+todos eles à API ao abrir o app.
+
+1. Suba a API (porta 8080) com o PostgreSQL rodando.
+2. Rode o app apontando para ela:
+
+| Onde roda o app | Comando |
+|---|---|
+| Chrome ou Linux | `flutter run -d chrome` (usa `http://localhost:8080`) |
+| Celular no USB | `adb reverse tcp:8080 tcp:8080` e depois `flutter run` |
+| Celular no Wi-Fi | `flutter run --dart-define=API_URL=http://IP-DO-COMPUTADOR:8080` |
+| Emulador Android | `flutter run --dart-define=API_URL=http://10.0.2.2:8080` |
+
+Sem a API, `--dart-define=MODO_LOCAL=true` roda com dados de exemplo em memória
+(é o modo usado pelos testes). O login fica só na memória: ao fechar o app,
+é preciso entrar de novo.
